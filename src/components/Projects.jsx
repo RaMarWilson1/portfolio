@@ -10,25 +10,25 @@ const projects = [
   {
     title: "Book Better",
     description: "A seamless booking platform with Stripe integration.",
-    image: "/BookBetter_Logo.jpg",
+    image: "BookBetter_Logo.jpg",
     link: "https://thebookbetter.com",
   },
   {
     title: "Luxury Tattoo",
     description: "A stylish tattoo booking website with artist pages.",
-    image: "/LuxuryTats.JPG",
+    image: "LuxuryTats.JPG",
     link: "https://luxurytattoo.com",
   },
   {
     title: "Portfolio Website",
     description: "My personal portfolio built with React and TailwindCSS.",
-    image: "/logo.png",
+    image: "logo.png",
     link: "https://ramarwilson.com",
   },
   {
     title: "Cybersecurity Dashboard",
     description: "A real-time monitoring tool for security threats.",
-    image: "/hacker.jpg",
+    image: "hacker.jpg",
     link: "#",
   },
 ];

@@ -11,28 +11,28 @@ const experiences = [
     company: "Medidata Solutions",
     period: "Summer 2025",
     description: "Building and optimizing cloud-based solutions, collaborating with teams to develop innovative software.",
-    logo: "/medidata.png" || placeholderLogo,
+    logo: "medidata.png" || placeholderLogo,
   },
   {
     title: "Software Engineer Fellow",
     company: "HeadStarter AI",
     period: "July 2024 – August 2024",
     description: "Developed AI-powered apps using NextJS, OpenAI, and StripeAPI, working in Agile teams with industry mentors.",
-    logo: "/headstarter.jpg" || placeholderLogo,
+    logo: "headstarter.jpg" || placeholderLogo,
   },
   {
     title: "IT Technician",
     company: "Saint Joseph’s University",
     period: "May 2024 – Present",
     description: "Managed Microsoft Azure database for 19,000+ students, ensuring data security and system maintenance.",
-    logo: "/SJU.jpg" || placeholderLogo,
+    logo: "SJU.jpg" || placeholderLogo,
   },
   {
     title: "STEM Intern",
     company: "Lavner Education",
     period: "May 2024 – Present",
     description: "Led coding workshops in Python, C++, and Java, introducing young students to AI and machine learning.",
-    logo: "/Lavner.png" || placeholderLogo,
+    logo: "Lavner.png" || placeholderLogo,
   },
 ];
 

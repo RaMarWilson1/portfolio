@@ -15,7 +15,7 @@ const Hero = () => {
         <div className="w-[90%] h-[90%] bg-black rounded-lg flex items-center justify-center overflow-hidden">
           {/* Animated Video */}
           <video
-            src="/macbook_animation.mp4" // Use "/macbook_animation.mp4" if placed in public/
+            src="macbook_animation.mp4" // Use "/macbook_animation.mp4" if placed in public/
             autoPlay
             loop
             muted
