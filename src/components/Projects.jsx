@@ -27,7 +27,7 @@ const projects = [
   },
   {
     title: "Hero Chat",
-    description: "Collaborated with 2 others to create Hero Chat. Hero chat is a support chat bot that allows you to ask 'JARVIS' anything about super heroes, deployed with Vercel and created with Nextjs, React, Llama 3 and Firebase. Hero chat has a Login, Sign-up, and a forgot password.",
+    description: "Collaborated with 2 others to create Hero Chat. Hero chat is a support chat bot that allows you to ask 'JARVIS' anything about super heroes, created with Nextjs, React, Llama 3 and Firebase.",
     image: "HeroChat.png",
     link: "https://github.com/Oscar-999/ChatSupport",
   },
