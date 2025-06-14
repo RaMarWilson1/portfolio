@@ -30,7 +30,7 @@ const Navbar = () => {
         <ul className="hidden md:flex space-x-6">
           <li>
             <a
-              href="/resume.pdf" // Opens resume in a new tab
+              href="\RaMar-Resume(June 25).pdf" // Opens resume in a new tab
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-blue-500 text-white font-semibold cursor-pointer hover:scale-105 transition duration-300 shadow-lg"
