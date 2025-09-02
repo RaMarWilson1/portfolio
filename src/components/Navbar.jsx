@@ -56,7 +56,7 @@ const Navbar = () => {
 
       {/* Mobile Menu (Slide-In) */}
       <div
-        className={`fixed top-0 right-0 h-full w-3/4 bg-black p-8 transform ${
+        className={`fixed top-0 right-0 h-full w-3/4 bg-black p-8 z-[100] transform ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 md:hidden`}
       >
