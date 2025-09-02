@@ -8,10 +8,10 @@ const placeholderImage = "https://via.placeholder.com/400x250?text=Project+Image
 // Projects with links
 const projects = [
   {
-    title: "Book Better",
+    title: "BookBetter",
     description: "A seamless booking platform with Stripe integration.",
     image: "BookBetter_Logo.jpg",
-    link: "https://thebookbetter.com",
+    link: "https://github.com/RaMarWilson1/BookBetter",
   },
   {
     title: "Luxury Tattoo",
@@ -30,6 +30,18 @@ const projects = [
     description: "Collaborated with 2 others to create Hero Chat. Hero chat is a support chat bot that allows you to ask 'JARVIS' anything about super heroes, created with Nextjs, React, Llama 3 and Firebase.",
     image: "HeroChat.png",
     link: "https://github.com/Oscar-999/ChatSupport",
+  },
+  {
+    title: "OpenRuns Shot Clock",
+    description: " A html code file for basketball shot clock and score tracking.",
+    image: "ShotClock.png",
+    link: "https://github.com/RaMarWilson1/Openruns",
+  },
+  {
+    title: "GenAI Projects",
+    description: " Collection of Jupyter notebooks exploring generative AI.",
+    image: "genAi.jpg",
+    link: "https://github.com/RaMarWilson1/GenAI",
   },
 ];
 
