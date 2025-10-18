@@ -10,7 +10,7 @@ const projects = [
   {
     title: "OneMoreDay",
     description: "COPPA-compliant mental health support app ",
-    image: "OMD_Logo.png",
+    image: "OMDLogo.png",
     link: "https://onemoredayapp.com",
   },
   {
