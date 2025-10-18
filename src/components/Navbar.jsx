@@ -30,7 +30,7 @@ const Navbar = () => {
         <ul className="hidden md:flex space-x-6">
           <li>
             <a
-              href="Ra'Mar-Wilson-Resume-2025-09-12.pdf" // Opens resume in a new tab
+              href="RaMarWilsonResume_Oct2025.pdf" // Opens resume in a new tab
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-blue-500 text-white font-semibold cursor-pointer hover:scale-105 transition duration-300 shadow-lg"
@@ -69,7 +69,7 @@ const Navbar = () => {
         <ul className="flex flex-col space-y-6 mt-12 text-center">
           <li>
             <a
-              href="Ra'Mar-Wilson-Resume-2025-09-12.pdf"
+              href="RaMarWilsonResume_Oct2025.pdf" // Opens resume in a new tab
               target="_blank"
               rel="noopener noreferrer"
               className="block text-white text-2xl font-semibold hover:text-blue-400 transition"

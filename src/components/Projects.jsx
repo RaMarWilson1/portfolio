@@ -8,6 +8,12 @@ const placeholderImage = "https://via.placeholder.com/400x250?text=Project+Image
 // Projects with links
 const projects = [
   {
+    title: "OneMoreDay",
+    description: "COPPA-compliant mental health support app ",
+    image: "OMD_Logo.png",
+    link: "https://onemoredayapp.com",
+  },
+  {
     title: "BookBetter",
     description: "A seamless booking platform with Stripe integration.",
     image: "BookBetter_Logo.jpg",
@@ -17,7 +23,7 @@ const projects = [
     title: "Luxury Tattoo",
     description: "A stylish tattoo booking website with artist pages.",
     image: "LuxuryTats.JPG",
-    link: "https://luxurytattoo.com",
+    link: "https://github.com/RaMarWilson1/tattoo",
   },
   {
     title: "Portfolio Website",
