@@ -7,11 +7,17 @@ const placeholderLogo = "https://via.placeholder.com/80x80?text=Logo";
 // Company Logos (Use placeholders if logos are missing)
 const experiences = [
   {
+    title: "Founder",
+    company: "OneMoreDay",
+    period: "Summer 2025 - Present",
+    description: "Built COPPA-compliant mental health support app",
+    logo: "OMDlogo.png" || placeholderLogo,
+  },
+  {
     title: "Software Engineer Intern",
     company: "Medidata Solutions",
-    period: "Summer 2025",
-    description: "Building and optimizing cloud-based solutions, collaborating with teams to develop innovative software.",
-    logo: "medidata.png" || placeholderLogo,
+    period: "May 2025 - August 2025",
+    description: "Built API connections and CI/CD test dashboard with ReportPortal API",
   },
   {
     title: "Software Engineer Fellow",
