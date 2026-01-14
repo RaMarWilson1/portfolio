@@ -38,7 +38,7 @@ const experiences = [
   {
     title: "STEM Intern",
     company: "Lavner Education",
-    period: "May 2024 – Present",
+    period: "May 2024 – March 2025",
     description: "Led coding workshops in Python, C++, and Java, introducing young students to AI and machine learning.",
     logo: "Lavner.png" || placeholderLogo,
   },
