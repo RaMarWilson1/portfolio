@@ -11,13 +11,15 @@ const experiences = [
     company: "OneMoreDay",
     period: "Summer 2025 - Present",
     description: "Built COPPA-compliant mental health support app",
-    logo: "OMDlogo.png" || placeholderLogo,
+    logo: "OMDLogo.png" || placeholderLogo,
   },
   {
     title: "Software Engineer Intern",
     company: "Medidata Solutions",
     period: "May 2025 - August 2025",
     description: "Built API connections and CI/CD test dashboard with ReportPortal API",
+    logo: "medidata.png" || placeholderLogo,
+
   },
   {
     title: "Software Engineer Fellow",
