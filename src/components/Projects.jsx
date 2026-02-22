@@ -2,10 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-// Placeholder image
 const placeholderImage = "https://via.placeholder.com/400x250?text=Project+Image";
 
-// Projects with links
 const projects = [
   {
     title: "OneMoreDay",
@@ -39,27 +37,25 @@ const projects = [
   },
   {
     title: "OpenRuns Shot Clock",
-    description: " A html code file for basketball shot clock and score tracking.",
+    description: "A html code file for basketball shot clock and score tracking.",
     image: "ShotClock.png",
     link: "https://github.com/RaMarWilson1/Openruns",
   },
   {
     title: "GenAI Projects",
-    description: " Collection of Jupyter notebooks exploring generative AI.",
+    description: "Collection of Jupyter notebooks exploring generative AI.",
     image: "genAi.jpg",
     link: "https://github.com/RaMarWilson1/GenAI",
   },
 ];
 
 const Projects = () => {
-  const [scrollX, setScrollX] = useState(0);
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Auto-scroll effect with infinite looping
   useEffect(() => {
-    if (isHovered) return; // Pause scrolling when hovered
+    if (isHovered) return;
 
     const interval = setInterval(() => {
       if (!scrollRef.current) return;
@@ -72,7 +68,6 @@ const Projects = () => {
     return () => clearInterval(interval);
   }, [isHovered]);
 
-  // Manual scroll functions
   const scrollLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -400, behavior: "smooth" });
@@ -87,7 +82,6 @@ const Projects = () => {
     }
   };
 
-  // Update active project index manually
   const updateActiveIndex = (change) => {
     setActiveIndex((prevIndex) => {
       let newIndex = prevIndex + change;
@@ -105,7 +99,6 @@ const Projects = () => {
     >
       <h2 className="text-4xl font-bold text-white mb-8">My Projects</h2>
 
-      {/* Left Scroll Arrow */}
       <button
         onClick={scrollLeft}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700"
@@ -113,7 +106,6 @@ const Projects = () => {
         <FaArrowLeft size={24} />
       </button>
 
-      {/* Projects Carousel */}
       <div className="overflow-hidden w-full max-w-6xl mx-auto" ref={scrollRef}>
         <motion.div className="flex space-x-6 p-4">
           {projects.map((project, index) => (
@@ -124,7 +116,7 @@ const Projects = () => {
               rel="noopener noreferrer"
               className={`min-w-[300px] md:min-w-[400px] h-[250px] rounded-lg overflow-hidden relative shadow-lg cursor-pointer transition duration-300 ${
                 activeIndex === index
-                  ? "bg-gradient-to-r from-red-500 to-blue-500 scale-105" // Active Project Styling
+                  ? "bg-gradient-to-r from-red-500 to-blue-500 scale-105"
                   : "bg-gray-900"
               }`}
               whileHover={{ scale: 1.1 }}
@@ -143,7 +135,6 @@ const Projects = () => {
         </motion.div>
       </div>
 
-      {/* Right Scroll Arrow */}
       <button
         onClick={scrollRight}
         className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700"
