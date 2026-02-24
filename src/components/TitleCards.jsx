@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { FaCloud, FaCode, FaBook, FaMedal, FaUsers, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaCloud, FaCode, FaBook, FaMedal, FaUsers, FaArrowLeft, FaArrowRight, FaHeart, FaLaptopCode, FaRocket } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const titles = [
   { name: "Dreamer", icon: <FaCloud className="text-6xl text-white" /> },
   { name: "Software Engineer", icon: <FaCode className="text-6xl text-white" /> },
+  { name: "Founder", icon: <FaRocket className="text-6xl text-white" /> },
   { name: "Mentor", icon: <FaUsers className="text-6xl text-white" /> },
+  { name: "Advocate", icon: <FaHeart className="text-6xl text-white" /> },
   { name: "Learner", icon: <FaBook className="text-6xl text-white" /> },
   { name: "Achiever", icon: <FaMedal className="text-6xl text-white" /> },
+  { name: "Builder", icon: <FaLaptopCode className="text-6xl text-white" /> },
+  
 ];
 
 const TitleCards = () => {
