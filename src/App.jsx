@@ -9,7 +9,7 @@ import Experience from "./components/Experience";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import BackgroundAnimation from "./components/BackgroundAnimation";
-import Newsletter from "./components/NewsLetter";
+import Newsletter from "./components/Newsletter";
 import Photography from "./components/Photography";
 
 // Home page — all the existing sections
