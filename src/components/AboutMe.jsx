@@ -6,9 +6,11 @@ import TitleCards from "./TitleCards";
 
 const PREVIEW_PHOTOS = [
   
-  "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80",
-  "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=80",
-  "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=400&q=80",
+  "/p12.jpeg",
+  "/p50.jpeg",
+  "/p93.jpeg",
+  "/p56.jpeg",
+  
 ];
 
 const fadeUp = (delay = 0) => ({
