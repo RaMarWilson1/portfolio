@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="https://media.beehiiv.com/cdn-cgi/image/format=auto/static_assets/navbar_icon.png"
+    type="image/png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="The publishing and newsletter platform built by creators for creators." />
+
+  <!-- Manifest file -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Tailwind CSS -->
+
+  <!-- External scripts -->
+  <script src="/variables.js" type="application/javascript"></script>
+  <script src="/experiments.js" type="application/javascript"></script>
+  <script src="/twitter_embed.js" type="application/javascript"></script>
+  <script src="/bluesky_embed.js" type="application/javascript"></script>
+  <script src="/stocktwits_embed.js" type="application/javascript"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <title>beehiiv</title>
+
+  <script id="profitwell-js" data-pw-auth="293b91319e192b3aac3299eba1eecb45" type="application/javascript">
+    /* Doing this hard coded like this is not ideal, but referencing it in an external script like we do for gtm does not work
+         for reasons their support cannot figure out
+         DO NOT DELETE - this code is used to accept our payments or send data to ProfitWell */
+    ((i, s, o, g, r) => {
+      if (!i[o]) {
+        i[o] = (...args) => {
+          i[o].q = i[o].q || [];
+          i[o].q.push(args);
+        };
+      }
+      const script = s.createElement(g);
+      const firstScript = s.getElementsByTagName(g)[0];
+      script.async = 1;
+      script.src = `${r}?auth=${s.getElementById(`${o}-js`).getAttribute('data-pw-auth')}`;
+      firstScript.parentNode.insertBefore(script, firstScript);
+    })(window, document, 'profitwell', 'script', 'https://public.profitwell.com/js/profitwell.js');
+  </script>
+
+  <script id="__ada" data-handle="beehiiv" data-lazy src="https://static.ada.support/embed2.js"></script>
+  <script type="module" crossorigin src="/assets/index-cRjP6RSK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-DnfnYiSO.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CIr3OMPe.js">
+  <link rel="modulepreload" crossorigin href="/assets/phone_collection-BzYqA8pB.js">
+  <link rel="modulepreload" crossorigin href="/assets/dream-components/_name_-BTZvgHNt.js">
+  <link rel="stylesheet" crossorigin href="/assets/style-BKAfLrvx.css">
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5XWH5S8" height="0" width="0"
+      style="display: none; visibility: hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+
+
+  <script type="text/javascript">
+    var currentPathname = window.location.pathname;
+
+    if (currentPathname === '/signup' || currentPathname === '/signup/email') {
+      // Create output element before EHawkTalon loads to prevent race condition
+      // biome-ignore lint/correctness/noInnerDeclarations: Keeping for eHawk settings
+      var talonInput = document.createElement('input');
+      talonInput.type = 'hidden';
+      talonInput.name = 'talon6';
+      talonInput.id = 'talon6';
+      talonInput.value = '{"version": 6, "status": -1}';
+      document.body.appendChild(talonInput);
+
+      // biome-ignore lint/correctness/noInnerDeclarations: Keeping for eHawk settings
+      // biome-ignore lint/correctness/noUnusedVariables: Keeping for eHawk settings
+      var eHawkTalonSettings = {
+        cookie: {
+          SameSite: 'Lax',
+          Secure: false,
+        },
+        bind: {
+          OutId: 'talon6',
+        },
+        autoLoad: true,
+      };
+
+      // Load EHawkTalon.js dynamically
+      // biome-ignore lint/correctness/noInnerDeclarations: Keeping for eHawk settings
+      var script = document.createElement('script');
+      script.src = '/EHawkTalon.js';
+      script.type = 'application/javascript';
+      document.head.appendChild(script);
+    }
+  </script>
+  <style>
+    #ada-button-frame {
+      display: none;
+    }
+  </style>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9da6afa05d1582da',t:'MTc3MzE5MTQ5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>
