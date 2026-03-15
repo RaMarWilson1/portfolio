@@ -15,13 +15,13 @@ const projects = [
     title: "BookBetter",
     description: "A seamless booking platform with Stripe integration.",
     image: "BookBetter_Logo.jpg",
-    link: "https://github.com/RaMarWilson1/BookBetter",
+    link: "https://bookbetter.vercel.app/",
   },
   {
     title: "Luxury Tattoo",
     description: "A stylish tattoo booking website with artist pages.",
     image: "LuxuryTats.JPG",
-    link: "https://github.com/RaMarWilson1/tattoo",
+    link: "https://luxury-tattoo-1joj3dl4b-ramar-neely-wilsons-projects.vercel.app/",
   },
   {
     title: "Portfolio Website",
@@ -145,4 +145,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default Projects; 
