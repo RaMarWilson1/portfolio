@@ -21,7 +21,7 @@ const projects = [
     title: "Luxury Tattoo",
     description: "A stylish tattoo booking website with artist pages.",
     image: "LuxuryTats.JPG",
-    link: "https://luxury-tattoo-1joj3dl4b-ramar-neely-wilsons-projects.vercel.app/",
+    link: "https://luxury-tattoo.vercel.app/",
   },
   {
     title: "Portfolio Website",
