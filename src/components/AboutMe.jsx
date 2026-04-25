@@ -110,7 +110,7 @@ const AboutMe = () => {
           <motion.div {...fadeUp(0.4)} className="flex flex-wrap gap-3 pt-2">
             {[
               { label: "CS Senior",  sub: "Saint Joseph's University" },
-              { label: "60+ Users",  sub: "One More Day" },
+              { label: "90+ Users",  sub: "One More Day" },
               { label: "Full-Stack", sub: "React · Next · Node" },
             ].map(({ label, sub }) => (
               <div

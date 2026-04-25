@@ -10,7 +10,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // List all blobs with the photography/ prefix
     const response = await fetch(
       "https://blob.vercel-storage.com?prefix=photography/&limit=100",
       {
@@ -27,29 +26,32 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Filter out folder-level entries and map to photo objects
     const photos = data.blobs
       .filter((blob) => blob.pathname !== "photography/")
       .map((blob) => {
         const filename = blob.pathname.split("/").pop();
         const nameWithoutExt = filename.replace(/\.[^.]+$/, "").replace(/_/g, " ");
 
-        // Parse category and title from filename convention: category_title.jpg
-        // e.g. "cars_mustang-season.jpg" → category: cars, title: mustang season
-        const parts = nameWithoutExt.split("_");
+        const parts = nameWithoutExt.split(" ");
         const category = parts.length > 1 ? parts[0] : "misc";
         const title = parts.length > 1 ? parts.slice(1).join(" ") : nameWithoutExt;
 
+        // Use Vercel image optimization for thumbnails — auto WebP, resized
+        const encodedUrl = encodeURIComponent(blob.url);
+        const thumb = `/_vercel/image?url=${encodedUrl}&w=400&q=70`;
+        const src   = `/_vercel/image?url=${encodedUrl}&w=1200&q=85`;
+
         return {
           id: blob.pathname,
-          src: blob.url,
-          thumb: blob.url,
+          src,
+          thumb,
           category,
           title,
           location: "",
         };
       });
 
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
     return res.status(200).json({ photos });
   } catch (err) {

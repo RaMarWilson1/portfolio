@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+const BATCH_SIZE = 9;
 
 const FILTERS = [
   { key: "all",    label: "All" },
-  { key: "nature",   label: "Nature" },
+  { key: "cars",   label: "Cars" },
   { key: "street", label: "Street" },
   { key: "sports", label: "Sports" },
   { key: "misc",   label: "Misc" },
@@ -19,11 +20,13 @@ const fadeUp = (delay = 0) => ({
 });
 
 const Photography = () => {
-  const [photos, setPhotos]     = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
-  const [active, setActive]     = useState("all");
-  const [selected, setSelected] = useState(null);
+  const [photos, setPhotos]       = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+  const [active, setActive]       = useState("all");
+  const [selected, setSelected]   = useState(null);
+  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const loaderRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/photos`)
@@ -36,9 +39,36 @@ const Photography = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  // Reset visible count when filter changes
+  useEffect(() => {
+    setVisibleCount(BATCH_SIZE);
+  }, [active]);
+
   const filtered = active === "all"
     ? photos
     : photos.filter((p) => p.category === active);
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Infinite scroll via IntersectionObserver
+  const handleObserver = useCallback(
+    (entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasMore) {
+        setVisibleCount((c) => c + BATCH_SIZE);
+      }
+    },
+    [hasMore]
+  );
+
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   const currentIndex = selected
     ? filtered.findIndex((p) => p.id === selected.id)
@@ -112,13 +142,7 @@ const Photography = () => {
               className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
               style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
             />
-            <p
-              style={{
-                color: "rgba(255,255,255,0.3)",
-                fontFamily: "monospace",
-                fontSize: 12,
-              }}
-            >
+            <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
               Loading photos...
             </p>
           </div>
@@ -146,14 +170,14 @@ const Photography = () => {
               className="photography-grid"
             >
               <AnimatePresence>
-                {filtered.map((photo, i) => (
+                {visible.map((photo, i) => (
                   <motion.div
                     key={photo.id}
                     layout
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.35, delay: i * 0.04 }}
+                    transition={{ duration: 0.35, delay: i * 0.03 }}
                     onClick={() => setSelected(photo)}
                     className="relative overflow-hidden rounded-xl cursor-pointer"
                     style={{
@@ -166,9 +190,12 @@ const Photography = () => {
                     <motion.img
                       src={photo.thumb}
                       alt={photo.title}
+                      loading="lazy"
+                      decoding="async"
                       variants={{ hover: { scale: 1.05 } }}
                       transition={{ duration: 0.4 }}
                       className="w-full block"
+                      style={{ minHeight: 120, background: "rgba(255,255,255,0.04)" }}
                     />
 
                     {/* Hover overlay */}
@@ -188,10 +215,7 @@ const Photography = () => {
                       {photo.location && (
                         <p
                           className="text-xs"
-                          style={{
-                            color: "rgba(255,255,255,0.45)",
-                            fontFamily: "monospace",
-                          }}
+                          style={{ color: "rgba(255,255,255,0.45)", fontFamily: "monospace" }}
                         >
                           {photo.location}
                         </p>
@@ -201,6 +225,16 @@ const Photography = () => {
                 ))}
               </AnimatePresence>
             </motion.div>
+
+            {/* Infinite scroll trigger */}
+            {hasMore && (
+              <div ref={loaderRef} className="flex justify-center py-8">
+                <div
+                  className="w-8 h-8 rounded-full border-2 border-transparent animate-spin"
+                  style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
+                />
+              </div>
+            )}
 
             {filtered.length === 0 && (
               <p className="text-center text-gray-600 py-20">Nothing here yet.</p>
@@ -245,22 +279,13 @@ const Photography = () => {
                   {selected.location && (
                     <p
                       className="text-xs"
-                      style={{
-                        color: "rgba(255,255,255,0.35)",
-                        fontFamily: "monospace",
-                      }}
+                      style={{ color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}
                     >
                       {selected.location}
                     </p>
                   )}
                 </div>
-                <p
-                  style={{
-                    color: "rgba(255,255,255,0.25)",
-                    fontFamily: "monospace",
-                    fontSize: 11,
-                  }}
-                >
+                <p style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace", fontSize: 11 }}>
                   {currentIndex + 1} / {filtered.length}
                 </p>
               </div>

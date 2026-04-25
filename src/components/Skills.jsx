@@ -63,11 +63,10 @@ function useFloatParams(count) {
   return useMemo(
     () =>
       Array.from({ length: count }, () => ({
-        x:        +(Math.random() * 16 - 8).toFixed(1),
-        y:        +(Math.random() * 16 - 8).toFixed(1),
-        rotate:   +(Math.random() * 8 - 4).toFixed(1),
-        duration: +(4 + Math.random() * 3).toFixed(2),
-        delay:    +(Math.random() * 3).toFixed(2),
+        x:        +(Math.random() * 12 - 6).toFixed(1),
+        y:        +(Math.random() * 12 - 6).toFixed(1),
+        duration: +(5 + Math.random() * 3).toFixed(2),
+        delay:    +(Math.random() * 4).toFixed(2),
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count],
@@ -82,10 +81,10 @@ const Bubble = ({ skill, fp, index }) => {
       initial={{ opacity: 0, scale: 0.5 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.45, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.45, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
-        animate={{ x: [0, fp.x, 0], y: [0, fp.y, 0], rotate: [0, fp.rotate, 0] }}
+        animate={{ x: [0, fp.x, 0], y: [0, fp.y, 0] }}
         transition={{
           duration: fp.duration,
           delay: fp.delay,
@@ -106,25 +105,23 @@ const Bubble = ({ skill, fp, index }) => {
           gap: 5,
           cursor: "default",
           willChange: "transform",
+          // Removed backdropFilter: blur — most expensive property on this page
           background: hovered
-            ? `radial-gradient(circle at 40% 35%, ${skill.color}22, transparent 70%), rgba(255,255,255,0.09)`
-            : "rgba(255,255,255,0.05)",
-          border: `1px solid ${hovered ? skill.color + "66" : "rgba(255,255,255,0.1)"}`,
+            ? `rgba(255,255,255,0.12)`
+            : "rgba(255,255,255,0.06)",
+          border: `1px solid ${hovered ? skill.color + "88" : "rgba(255,255,255,0.1)"}`,
           boxShadow: hovered
-            ? `0 0 22px ${skill.color}44, inset 0 0 10px ${skill.color}11`
-            : "0 2px 10px rgba(0,0,0,0.35)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
-          transition: "background 0.25s, border 0.25s, box-shadow 0.25s",
+            ? `0 0 18px ${skill.color}33`
+            : "none",
+          transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
         }}
       >
         <span
           style={{
             fontSize: 22,
             color: skill.color,
-            filter: hovered ? `drop-shadow(0 0 6px ${skill.color})` : "none",
-            transform: hovered ? "scale(1.18)" : "scale(1)",
-            transition: "filter 0.25s, transform 0.25s",
+            filter: hovered ? `drop-shadow(0 0 5px ${skill.color})` : "none",
+            transition: "filter 0.2s",
             display: "flex",
           }}
         >
@@ -167,6 +164,7 @@ const Cluster = ({ cluster, index }) => {
         border: `1px solid ${cluster.accent}2e`,
       }}
     >
+      {/* Pill label */}
       <div
         style={{
           position: "absolute",
@@ -186,6 +184,7 @@ const Cluster = ({ cluster, index }) => {
         {cluster.label}
       </div>
 
+      {/* Bubbles */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
         {cluster.skills.map((skill, i) => (
           <Bubble key={skill.name} skill={skill} fp={floatParams[i]} index={i} />
@@ -196,13 +195,29 @@ const Cluster = ({ cluster, index }) => {
 };
 
 const Skills = () => (
-  <section style={{ width: "100%", padding: "96px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 48 }}>
+  <section
+    style={{
+      width: "100%",
+      padding: "96px 24px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 48,
+    }}
+  >
+    {/* Header */}
     <div style={{ textAlign: "center" }}>
       <motion.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 12 }}
+        style={{
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.3)",
+          marginBottom: 12,
+        }}
       >
         What I work with
       </motion.p>
@@ -211,16 +226,38 @@ const Skills = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.55 }}
-        style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 700, color: "#fff", lineHeight: 1.1 }}
+        style={{
+          fontSize: "clamp(2rem, 5vw, 3rem)",
+          fontWeight: 700,
+          color: "#fff",
+          lineHeight: 1.1,
+        }}
       >
         Skills &{" "}
-        <span style={{ backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+        <span
+          style={{
+            backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           Stack
         </span>
       </motion.h2>
     </div>
 
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 20, width: "100%", maxWidth: 1100, justifyContent: "center", alignItems: "flex-start" }}>
+    {/* Three clusters */}
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 20,
+        width: "100%",
+        maxWidth: 1100,
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
+    >
       {CLUSTERS.map((cluster, i) => (
         <Cluster key={cluster.label} cluster={cluster} index={i} />
       ))}
