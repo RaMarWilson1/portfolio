@@ -1,46 +1,93 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef, useMemo } from "react";
+
+// Pre-generate stable random values so particles don't shift on re-render
+function useParticles(count) {
+  return useMemo(
+    () =>
+      Array.from({ length: count }, () => ({
+        top:      Math.random() * 100,
+        left:     Math.random() * 100,
+        duration: Math.random() * 15 + 10,
+        delay:    Math.random() * 10,
+        size:     Math.random() * 3 + 1,
+      })),
+    [count]
+  );
+}
 
 const BackgroundAnimation = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const particles = useParticles(20); // reduced from 30
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
-      setMousePosition({ x: event.clientX, y: event.clientY });
+    const container = containerRef.current;
+    if (!container) return;
+
+    let rafId;
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const dots = container.querySelectorAll(".bg-particle");
+
+    const handleMouseMove = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+
+    const animate = () => {
+      // Lerp toward mouse — smooth lag effect
+      currentX += (mouseX - currentX) * 0.05;
+      currentY += (mouseY - currentY) * 0.05;
+
+      dots.forEach((dot, i) => {
+        const factor = (i % 5 + 1) * 0.003;
+        dot.style.transform = `translate(${currentX * factor}px, ${currentY * factor}px)`;
+      });
+
+      rafId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    rafId = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
-    <motion.div
-      className="fixed inset-0 w-full h-full z-[-1] overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 2 }}
+    <div
+      ref={containerRef}
+      className="fixed inset-0 w-full h-full overflow-hidden"
+      style={{ zIndex: -1, pointerEvents: "none" }}
     >
-      {/* Floating Particles */}
-      {[...Array(30)].map((_, i) => (
-        <motion.div
+      {particles.map((p, i) => (
+        <div
           key={i}
-          className="absolute w-1.5 h-1.5 rounded-full bg-gray-700 opacity-10"
+          className="bg-particle absolute rounded-full bg-gray-600"
           style={{
-            top: `${Math.random() * 100}vh`,
-            left: `${Math.random() * 100}vw`,
-          }}
-          animate={{
-            y: ["0%", "100%"],
-            opacity: [0.1, 0.3, 0.1],
-            x: [mousePosition.x * 0.01 - 10, mousePosition.x * 0.01 + 10], // Mouse-based movement
-          }}
-          transition={{
-            duration: Math.random() * 15 + 10,
-            repeat: Infinity,
-            ease: "linear",
+            top: `${p.top}vh`,
+            left: `${p.left}vw`,
+            width: p.size,
+            height: p.size,
+            opacity: 0.12,
+            willChange: "transform",
+            animation: `floatUp ${p.duration}s ${p.delay}s infinite linear`,
           }}
         />
       ))}
-    </motion.div>
+
+      <style>{`
+        @keyframes floatUp {
+          0%   { transform: translateY(0px) }
+          50%  { opacity: 0.25; }
+          100% { transform: translateY(-100vh); opacity: 0.05; }
+        }
+      `}</style>
+    </div>
   );
 };
 
