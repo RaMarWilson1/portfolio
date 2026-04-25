@@ -30,21 +30,23 @@ export default async function handler(req, res) {
       .filter((blob) => blob.pathname !== "photography/")
       .map((blob) => {
         const filename = blob.pathname.split("/").pop();
-        const nameWithoutExt = filename.replace(/\.[^.]+$/, "").replace(/_/g, " ");
+        // Remove extension and replace underscores with spaces
+        const nameWithoutExt = filename
+          .replace(/\.[^.]+$/, "")
+          .replace(/_/g, " ")
+          .trim();
 
-        const parts = nameWithoutExt.split(" ");
-        const category = parts.length > 1 ? parts[0] : "misc";
-        const title = parts.length > 1 ? parts.slice(1).join(" ") : nameWithoutExt;
-
-        // Use Vercel image optimization for thumbnails — auto WebP, resized
-        const encodedUrl = encodeURIComponent(blob.url);
-        const thumb = `/_vercel/image?url=${encodedUrl}&w=400&q=70`;
-        const src   = `/_vercel/image?url=${encodedUrl}&w=1200&q=85`;
+        // Parse category from filename: "cars photo1" → category: "cars"
+        const parts = nameWithoutExt.split(" ").filter(Boolean);
+        const category = parts.length > 1 ? parts[0].toLowerCase() : "misc";
+        const title = parts.length > 1
+          ? parts.slice(1).join(" ")
+          : nameWithoutExt;
 
         return {
           id: blob.pathname,
-          src,
-          thumb,
+          src: blob.url,   // direct Blob URL — no encoding issues
+          thumb: blob.url, // same URL, lazy loading handles performance
           category,
           title,
           location: "",
