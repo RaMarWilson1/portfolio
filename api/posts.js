@@ -1,21 +1,21 @@
-// api/photos.js
-// Vercel serverless function — fetches photos from Vercel Blob
+// api/posts.js
+// Vercel serverless function — fetches published posts from Beehiiv
 /* eslint-env node */
 
 export default async function handler(req, res) {
-  const { BLOB_READ_WRITE_TOKEN } = process.env; // eslint-disable-line no-undef
+  const { BEEHIIV_API_KEY, BEEHIIV_PUB_ID } = process.env; // eslint-disable-line no-undef
 
-  if (!BLOB_READ_WRITE_TOKEN) {
-    return res.status(500).json({ error: "Missing BLOB_READ_WRITE_TOKEN environment variable" });
+  if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
+    return res.status(500).json({ error: "Missing Beehiiv environment variables" });
   }
 
   try {
-    // List all blobs with the photography/ prefix
     const response = await fetch(
-      "https://blob.vercel-storage.com?prefix=photography/&limit=100",
+      `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/posts?status=confirmed&limit=10&expand[]=free_web_content`,
       {
         headers: {
-          Authorization: `Bearer ${BLOB_READ_WRITE_TOKEN}`,
+          Authorization: `Bearer ${BEEHIIV_API_KEY}`,
+          "Content-Type": "application/json",
         },
       }
     );
@@ -27,33 +27,24 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Filter out folder-level entries and map to photo objects
-    const photos = data.blobs
-      .filter((blob) => blob.pathname !== "photography/")
-      .map((blob) => {
-        const filename = blob.pathname.split("/").pop();
-        const nameWithoutExt = filename.replace(/\.[^.]+$/, "").replace(/_/g, " ");
+    const posts = data.data.map((post) => ({
+      id: post.id,
+      title: post.title,
+      subtitle: post.subtitle ?? "",
+      date: new Date(post.publish_date * 1000).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+      url: post.web_url,
+      thumbnail: post.thumbnail_url ?? null,
+      previewText: post.preview_text ?? "",
+    }));
 
-        // Parse category and title from filename convention: category_title.jpg
-        // e.g. "cars_mustang-season.jpg" → category: cars, title: mustang season
-        const parts = nameWithoutExt.split("_");
-        const category = parts.length > 1 ? parts[0] : "misc";
-        const title = parts.length > 1 ? parts.slice(1).join(" ") : nameWithoutExt;
-
-        return {
-          id: blob.pathname,
-          src: blob.url,
-          thumb: blob.url,
-          category,
-          title,
-          location: "",
-        };
-      });
-
-    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
-    return res.status(200).json({ photos });
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate");
+    return res.status(200).json({ posts });
   } catch (err) {
-    console.error("Vercel Blob fetch error:", err);
-    return res.status(500).json({ error: "Failed to fetch photos" });
+    console.error("Beehiiv fetch error:", err);
+    return res.status(500).json({ error: "Failed to fetch posts" });
   }
 }

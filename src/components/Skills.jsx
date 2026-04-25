@@ -50,11 +50,11 @@ const CLUSTERS = [
       { name: "Vercel",      icon: <SiVercel />,     color: "#ffffff" },
       { name: "Firebase",    icon: <SiFirebase />,   color: "#fb923c" },
       { name: "Figma",       icon: <SiFigma />,      color: "#f472b6" },
-      { name: "Claude Code",  icon: <SiAnthropic />, color: "#cc785c" },
-      { name: "Drizzle ORM",  icon: <SiDrizzle />,   color: "#c5f74f" },
-      { name: "Stripe",       icon: <SiStripe />,    color: "#635bff" },
-      { name: "Google OAuth", icon: <SiGoogle />,    color: "#ea4335" },
-      { name: "Clerk",        icon: <SiClerk />,     color: "#6c47ff" },
+      { name: "Claude Code", icon: <SiAnthropic />,  color: "#cc785c" },
+      { name: "Drizzle ORM", icon: <SiDrizzle />,    color: "#c5f74f" },
+      { name: "Stripe",      icon: <SiStripe />,     color: "#635bff" },
+      { name: "Google OAuth",icon: <SiGoogle />,     color: "#ea4335" },
+      { name: "Clerk",       icon: <SiClerk />,      color: "#6c47ff" },
     ],
   },
 ];
@@ -63,11 +63,11 @@ function useFloatParams(count) {
   return useMemo(
     () =>
       Array.from({ length: count }, () => ({
-        x:        +(Math.random() * 24 - 12).toFixed(1),
-        y:        +(Math.random() * 24 - 12).toFixed(1),
-        rotate:   +(Math.random() * 12 - 6).toFixed(1),
-        duration: +(3.5 + Math.random() * 2.5).toFixed(2),
-        delay:    +(Math.random() * 1.5).toFixed(2),
+        x:        +(Math.random() * 16 - 8).toFixed(1),
+        y:        +(Math.random() * 16 - 8).toFixed(1),
+        rotate:   +(Math.random() * 8 - 4).toFixed(1),
+        duration: +(4 + Math.random() * 3).toFixed(2),
+        delay:    +(Math.random() * 3).toFixed(2),
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count],
@@ -105,6 +105,7 @@ const Bubble = ({ skill, fp, index }) => {
           justifyContent: "center",
           gap: 5,
           cursor: "default",
+          willChange: "transform",
           background: hovered
             ? `radial-gradient(circle at 40% 35%, ${skill.color}22, transparent 70%), rgba(255,255,255,0.09)`
             : "rgba(255,255,255,0.05)",
@@ -166,7 +167,6 @@ const Cluster = ({ cluster, index }) => {
         border: `1px solid ${cluster.accent}2e`,
       }}
     >
-      {/* Pill label */}
       <div
         style={{
           position: "absolute",
@@ -186,7 +186,6 @@ const Cluster = ({ cluster, index }) => {
         {cluster.label}
       </div>
 
-      {/* Bubbles */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
         {cluster.skills.map((skill, i) => (
           <Bubble key={skill.name} skill={skill} fp={floatParams[i]} index={i} />
@@ -197,29 +196,13 @@ const Cluster = ({ cluster, index }) => {
 };
 
 const Skills = () => (
-  <section
-    style={{
-      width: "100%",
-      padding: "96px 24px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: 48,
-    }}
-  >
-    {/* Header */}
+  <section style={{ width: "100%", padding: "96px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 48 }}>
     <div style={{ textAlign: "center" }}>
       <motion.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.3)",
-          marginBottom: 12,
-        }}
+        style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 12 }}
       >
         What I work with
       </motion.p>
@@ -228,38 +211,16 @@ const Skills = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.55 }}
-        style={{
-          fontSize: "clamp(2rem, 5vw, 3rem)",
-          fontWeight: 700,
-          color: "#fff",
-          lineHeight: 1.1,
-        }}
+        style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 700, color: "#fff", lineHeight: 1.1 }}
       >
         Skills &{" "}
-        <span
-          style={{
-            backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
+        <span style={{ backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
           Stack
         </span>
       </motion.h2>
     </div>
 
-    {/* Three clusters */}
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: 20,
-        width: "100%",
-        maxWidth: 1100,
-        justifyContent: "center",
-        alignItems: "flex-start",
-      }}
-    >
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 20, width: "100%", maxWidth: 1100, justifyContent: "center", alignItems: "flex-start" }}>
       {CLUSTERS.map((cluster, i) => (
         <Cluster key={cluster.label} cluster={cluster} index={i} />
       ))}

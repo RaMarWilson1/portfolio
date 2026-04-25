@@ -11,8 +11,8 @@ import Footer from "./components/Footer";
 import BackgroundAnimation from "./components/BackgroundAnimation";
 import Newsletter from "./components/Newsletter";
 import Photography from "./components/Photography";
+import Poetry from "./components/Poetry";
 
-// Home page — all the existing sections
 const Home = () => (
   <>
     <section id="hero"><Hero /></section>
@@ -35,6 +35,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/newsletter" element={<Newsletter />} />
           <Route path="/photography" element={<Photography />} />
+          <Route path="/poetry" element={<Poetry />} />
         </Routes>
       </div>
     </Router>

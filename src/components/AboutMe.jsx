@@ -5,12 +5,10 @@ import { useNavigate } from "react-router-dom";
 import TitleCards from "./TitleCards";
 
 const PREVIEW_PHOTOS = [
-  
-  "/p12.jpeg",
-  "/p50.jpeg",
-  "/p93.jpeg",
-  "/p56.jpeg",
-  
+  "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_-1.HEIC",
+  "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_-2.HEIC",
+  "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_-3.HEIC",
+  "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_-4.HEIC",
 ];
 
 const fadeUp = (delay = 0) => ({
