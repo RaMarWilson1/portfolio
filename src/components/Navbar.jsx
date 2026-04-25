@@ -5,8 +5,9 @@ import { FaBars, FaTimes } from "react-icons/fa";
 
 const SCROLL_LINKS = ["About", "Skills", "Projects", "Experience", "Contact"];
 const PAGE_LINKS = [
-  { label: "Newsletter", path: "/newsletter" },
-  { label: "Photography", path: "/photography" },
+  { label: "Newsletter",   path: "/newsletter" },
+  { label: "Photography",  path: "/photography" },
+  { label: "Poetry",       path: "/poetry" },
 ];
 
 const Navbar = () => {
