@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
@@ -14,12 +16,13 @@ const Poetry = () => {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    fetch("https://ramarwilson.com/api/poems")
+    fetch(`${API_BASE}/api/poems`)
       .then((r) => r.json())
       .then((data) => {
-        setPoems(data.poems ?? []);
+        const list = data.poems ?? [];
+        setPoems(list);
         // Auto-select featured poem or first poem
-        const featured = data.poems?.find((p) => p.featured) ?? data.poems?.[0];
+        const featured = list.find((p) => p.featured) ?? list[0];
         if (featured) setSelected(featured);
       })
       .catch(() => setPoems([]))
@@ -47,6 +50,7 @@ const Poetry = () => {
           >
             Written Word
           </motion.p>
+
           <motion.h1
             {...fadeUp(0.1)}
             className="text-white font-bold leading-tight"
@@ -60,6 +64,7 @@ const Poetry = () => {
               lines.
             </span>
           </motion.h1>
+
           <motion.p {...fadeUp(0.2)} className="text-gray-400 text-base max-w-lg">
             Thoughts that didn't fit in code. Words that needed somewhere to go.
           </motion.p>
@@ -72,18 +77,28 @@ const Poetry = () => {
               className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
               style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
             />
-            <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
+            <p
+              style={{
+                color: "rgba(255,255,255,0.3)",
+                fontFamily: "monospace",
+                fontSize: 12,
+              }}
+            >
               Loading poems...
             </p>
           </div>
         )}
 
+        {/* ── Empty state ─────────────────────────────── */}
         {!loading && poems.length === 0 && (
           <div
             className="p-8 rounded-xl text-center border border-white/[0.07]"
             style={{ background: "rgba(255,255,255,0.02)" }}
           >
-            <p className="text-gray-500 text-sm">No poems yet. Upload a JSON file to your Vercel Blob under the <code className="text-gray-400">poetry/</code> prefix.</p>
+            <p className="text-gray-500 text-sm">
+              No poems yet. Upload a JSON file to your Vercel Blob under the{" "}
+              <code className="text-gray-400">poetry/</code> prefix.
+            </p>
           </div>
         )}
 
@@ -129,7 +144,10 @@ const Poetry = () => {
 
                   <h2
                     className="text-white font-bold"
-                    style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 1.2 }}
+                    style={{
+                      fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                      lineHeight: 1.2,
+                    }}
                   >
                     {featured.title}
                   </h2>
@@ -170,21 +188,31 @@ const Poetry = () => {
                       onClick={() => setSelected(poem)}
                       className="flex flex-col gap-3 p-5 rounded-xl cursor-pointer transition-all duration-200"
                       style={{
-                        border: selected?.id === poem.id
-                          ? "1px solid rgba(239,68,68,0.5)"
-                          : "1px solid rgba(255,255,255,0.07)",
-                        background: selected?.id === poem.id
-                          ? "rgba(239,68,68,0.05)"
-                          : "rgba(255,255,255,0.02)",
+                        border:
+                          selected?.id === poem.id
+                            ? "1px solid rgba(239,68,68,0.5)"
+                            : "1px solid rgba(255,255,255,0.07)",
+                        background:
+                          selected?.id === poem.id
+                            ? "rgba(239,68,68,0.05)"
+                            : "rgba(255,255,255,0.02)",
                       }}
                       whileHover={{ scale: 1.02 }}
                     >
                       {poem.date && (
-                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
+                        <p
+                          style={{
+                            fontSize: 10,
+                            color: "rgba(255,255,255,0.25)",
+                            fontFamily: "monospace",
+                          }}
+                        >
                           {poem.date}
                         </p>
                       )}
-                      <p className="text-white font-semibold text-sm">{poem.title}</p>
+                      <p className="text-white font-semibold text-sm">
+                        {poem.title}
+                      </p>
                       <p className="text-gray-500 text-xs leading-relaxed line-clamp-3 whitespace-pre-line">
                         {poem.body}
                       </p>
@@ -236,18 +264,30 @@ const Poetry = () => {
               <button
                 onClick={() => setSelected(null)}
                 className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm"
-                style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                }}
               >
                 ✕
               </button>
 
               {selected.date && (
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "rgba(255,255,255,0.3)",
+                    fontFamily: "monospace",
+                  }}
+                >
                   {selected.date}
                 </p>
               )}
 
-              <h2 className="text-white font-bold" style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>
+              <h2
+                className="text-white font-bold"
+                style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}
+              >
                 {selected.title}
               </h2>
 
