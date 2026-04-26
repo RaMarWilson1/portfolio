@@ -56,7 +56,7 @@ const Navbar = () => {
           {/* Resume */}
           <li>
             <a
-              href="RaMarWilsonResume-March2026.pdf"
+              href="RaMarWilson-AprilResume2026.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-blue-500 text-white font-semibold hover:scale-105 transition duration-300 shadow-lg inline-block"
@@ -131,7 +131,7 @@ const Navbar = () => {
         <ul className="flex flex-col space-y-6 mt-12 text-center">
           <li>
             <a
-              href="RaMarWilsonResume-March2026.pdf"
+              href="RaMarWilson-AprilResume2026.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="block text-white text-2xl font-semibold hover:text-blue-400 transition"
