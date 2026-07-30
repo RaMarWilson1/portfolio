@@ -61,7 +61,7 @@ const Newsletter = () => {
             Life. Code.{" "}
             <span
               className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)" }}
+              style={{ backgroundImage: "linear-gradient(120deg, #F2B85C, #F2765C)" }}
             >
               Everything
             </span>
@@ -144,7 +144,7 @@ const Newsletter = () => {
         </motion.div>
 
         {/* ── Divider ───────────────────────────────────── */}
-        <div className="w-full h-px" style={{ background: "linear-gradient(to right, #ef4444, transparent, #3b82f6)" }} />
+        <div className="w-full h-px" style={{ background: "linear-gradient(to right, #F2B85C, transparent, #F2765C)" }} />
 
         {/* ── Issues archive ────────────────────────────── */}
         <motion.div {...fadeUp(0)} className="flex flex-col gap-6">
@@ -156,7 +156,7 @@ const Newsletter = () => {
             <div className="flex items-center gap-3 py-8">
               <div
                 className="w-6 h-6 rounded-full border-2 border-transparent animate-spin shrink-0"
-                style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
+                style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
               />
               <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
                 Loading issues...
@@ -171,7 +171,7 @@ const Newsletter = () => {
             >
               <span
                 className="text-xs font-bold px-3 py-1 rounded-full"
-                style={{ background: "linear-gradient(135deg, #ef4444, #3b82f6)", color: "#fff", fontFamily: "monospace" }}
+                style={{ background: "linear-gradient(120deg, #F2B85C, #F2765C)", color: "#fff", fontFamily: "monospace" }}
               >
                 Coming Soon
               </span>
@@ -211,7 +211,7 @@ const Newsletter = () => {
                     <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 10, letterSpacing: "0.1em" }}>
                       {post.date}
                     </p>
-                    <p className="text-white font-semibold text-sm group-hover:text-blue-400 transition-colors truncate">
+                    <p className="text-white font-semibold text-sm group-hover:text-[#F2B85C] transition-colors truncate">
                       {post.title}
                     </p>
                     {post.previewText && (
@@ -222,7 +222,7 @@ const Newsletter = () => {
                     <span
                       className="text-xs font-semibold mt-1 w-fit"
                       style={{
-                        background: "linear-gradient(90deg, #ef4444, #3b82f6)",
+                        background: "linear-gradient(120deg, #F2B85C, #F2765C)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                       }}

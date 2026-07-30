@@ -7,40 +7,44 @@ const placeholderLogo = "https://via.placeholder.com/80x80?text=Logo";
 // Company Logos (Use placeholders if logos are missing)
 const experiences = [
   {
-    title: "Founder",
-    company: "OneMoreDay",
-    period: "Summer 2025 - Present",
-    description: "Built COPPA-compliant mental health support app",
-    logo: "OMDLogo.png" || placeholderLogo,
+    title: "Founder & Product Engineer",
+    company: "Bontro",
+    period: "Jan 2026 – Present",
+    description:
+      "Architected and shipped a zero-commission booking & payments SaaS solo — web, native iOS/Android, and a PIN-gated in-shop kiosk. Defined the pricing model, instrumented the full funnel, and secured pre-seed funding.",
+    logo: "Bontro_Logo.png",
+  },
+  {
+    title: "Product Engineer",
+    company: "One More Day",
+    period: "Jun 2025 – Present",
+    description:
+      "Built a dual-layer AI moderation pipeline and COPPA-compliant onboarding for a peer-support app, plus a crisis-detection intervention flow — reached 95+ users at 50% retention.",
+    logo: "OMDLogo.png",
   },
   {
     title: "Software Engineer Intern",
     company: "Medidata Solutions",
-    period: "May 2025 - August 2025",
-    description: "Built API connections and CI/CD test dashboard with ReportPortal API",
-    logo: "medidata.png" || placeholderLogo,
-
+    period: "May 2025 – Aug 2025",
+    description:
+      "Led architecture for an internal analytics app built for C-suite executives; shipped 3 interactive dashboards and improved QA decision-making efficiency by 25%.",
+    logo: "medidata.png",
   },
   {
     title: "Software Engineer Fellow",
     company: "HeadStarter AI",
-    period: "July 2024 – August 2024",
-    description: "Developed AI-powered apps using NextJS, OpenAI, and StripeAPI, working in Agile teams with industry mentors.",
-    logo: "headstarter.jpg" || placeholderLogo,
+    period: "Jul 2024 – Aug 2024",
+    description:
+      "Built AI-powered apps with Next.js, OpenAI, and Stripe in Agile teams alongside industry mentors.",
+    logo: "headstarter.jpg",
   },
   {
     title: "IT Technician",
-    company: "Saint Joseph’s University",
-    period: "May 2024 – Present",
-    description: "Managed Microsoft Azure database for 19,000+ students, ensuring data security and system maintenance.",
-    logo: "SJU.jpg" || placeholderLogo,
-  },
-  {
-    title: "STEM Intern",
-    company: "Lavner Education",
-    period: "May 2024 – March 2025",
-    description: "Led coding workshops in Python, C++, and Java, introducing young students to AI and machine learning.",
-    logo: "Lavner.png" || placeholderLogo,
+    company: "Saint Joseph's University",
+    period: "May 2024 – May 2026",
+    description:
+      "Maintained Microsoft Azure infrastructure serving 19,000+ students, handling data security and system upkeep.",
+    logo: "SJU.jpg",
   },
 ];
 

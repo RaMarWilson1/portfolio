@@ -25,7 +25,7 @@ const Contact = () => {
       <div className="flex space-x-6 text-3xl">
         {[
           { href: "https://github.com/ramarwilson1", icon: <FaGithub />, color: "text-white" },
-          { href: "https://www.linkedin.com/in/ramar-wilson-181049274/", icon: <FaLinkedin />, color: "text-blue-400" },
+          { href: "https://www.linkedin.com/in/ramarwilson1/", icon: <FaLinkedin />, color: "text-blue-400" },
           { href: "https://www.youtube.com/@ramarwilson1", icon: <FaYoutube />, color: "text-red-500" },
           { href: "https://www.instagram.com/ramarwilson1", icon: <FaInstagram />, color: "text-pink-500" },
         ].map((social, index) => (
@@ -44,7 +44,8 @@ const Contact = () => {
 
         {/* Discord Invite Link */}
         <motion.a
-          href="Khttps://discord.gg/TeKDhaqMqb" 
+          href="https://discord.gg/TeKDhaqMqb"
+          target="_blank"
           rel="noopener noreferrer"
           className="text-blue-500 hover:text-gray-400 transition flex flex-col items-center"
           whileHover={{ scale: 1.2, y: -5, boxShadow: "0px 0px 10px rgba(255, 255, 255, 0.6)" }}
