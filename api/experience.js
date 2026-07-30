@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       )
     ).filter(Boolean);
 
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
     return res.status(200).json({ experience });
   } catch (err) {

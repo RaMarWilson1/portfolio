@@ -136,13 +136,24 @@ body{margin:0;overflow-x:hidden}
 .pf .communities .clabel{font-family:var(--pf-mono);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--pf-muted)}
 .pf .cbadges{display:flex;flex-wrap:wrap;gap:9px}
 .pf .cbadge{font-family:var(--pf-mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--pf-ink);border:1px solid var(--pf-line);border-radius:999px;padding:8px 14px;background:linear-gradient(160deg,rgba(242,184,92,.10),rgba(111,160,245,.07))}
-.pf .xpcarousel{display:flex;flex-direction:column;gap:16px}
-.pf .xptabs{display:flex;flex-wrap:wrap;gap:8px}
-.pf .xptab{font-family:var(--pf-mono);text-transform:uppercase;letter-spacing:.07em;font-size:11px;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--pf-line);background:rgba(255,255,255,.03);color:var(--pf-muted);cursor:pointer;transition:color .15s,background .15s,border-color .15s}
-.pf .xptab:hover{color:var(--pf-ink)}
-.pf .xptab.on{color:var(--pf-night);background:linear-gradient(120deg,var(--pf-gold),var(--pf-coral));border-color:transparent}
-.pf .xpstage{position:relative;overflow:hidden;min-height:344px}
-@media(max-width:560px){.pf .xpstage{min-height:460px}}
+.pf .xpcard{flex:0 0 360px;width:360px;margin-right:18px;border:1px solid var(--pf-line);border-radius:16px;background:linear-gradient(165deg,rgba(242,184,92,.06),rgba(111,160,245,.05));padding:22px 22px 24px;position:relative;overflow:hidden}
+.pf .xpcard-points li{font-size:13.5px}
+.pf .xpcard::before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;background:linear-gradient(90deg,var(--pf-gold),var(--pf-coral))}
+.pf .xpcard-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:5px}
+.pf .xpcard-org{font-weight:700;font-size:16px;color:var(--pf-gold);letter-spacing:-.01em}
+.pf .xpcard-period{font-family:var(--pf-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--pf-muted);white-space:nowrap}
+.pf .xpcard-role{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:9px 0 2px;line-height:1.12}
+.pf .xpcard-loc{font-family:var(--pf-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--pf-muted);margin-bottom:13px}
+.pf .xpcard-points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.pf .xpcard-points li{position:relative;padding-left:16px;font-size:13px;line-height:1.45;color:#CDD4EA}
+.pf .xpcard-points li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:2px;background:linear-gradient(120deg,var(--pf-gold),var(--pf-coral))}
+.pf .xpmarquee{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.pf .xptrack{display:flex;width:max-content;animation:pf-marq 40s linear infinite}
+.pf .xpmarquee:hover .xptrack{animation-play-state:paused}
+@keyframes pf-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.pf .xpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.pf .xpgrid .xpcard{width:auto;flex:initial;margin-right:0}
+@media(prefers-reduced-motion:reduce){.pf .xptrack{animation:none}}
 
 /* project grids */
 .pf .grid{display:grid;grid-template-columns:1fr;gap:18px}
