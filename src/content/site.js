@@ -36,7 +36,7 @@ export const SITE = {
   // --- flagship products ---
   bontro: {
     web: "https://bontro.co",
-    app: "https://apps.apple.com/app/id6773386649", // TODO: confirm real App Store id
+    app: "https://bontro.co/app", // device-detects → App Store / Google Play
     shot: "/projects/bontro.jpg",
     tags: ["Next.js", "TypeScript", "PostgreSQL", "Stripe", "React Native"],
   },
@@ -45,6 +45,63 @@ export const SITE = {
     shot: "/projects/one-more-day.jpg",
     tags: ["Next.js", "TypeScript", "PostgreSQL", "Privacy & Safety", "Moderation Systems"],
   },
+
+  // --- experience: roles + communities. Also add/edit these from /studio.
+  //     `order` (higher = shown first) controls position. type: "role" | "community".
+  experience: [
+    {
+      type: "role", order: 95,
+      role: "Software Engineer Intern",
+      org: "Medidata Solutions",
+      loc: "New York City",
+      period: "Summer 2025",
+      note: "Last summer I interned at Medidata in New York and saw how a real engineering team works. It confirmed exactly where I want to keep growing, and gave me hands-on experience shipping software inside a production engineering organization.",
+      points: [
+        "Built internal tools in React used by engineering teams.",
+        "Created ReportPortal dashboards and wrote API documentation.",
+        "Worked with PostgreSQL-backed reporting and metrics.",
+        "Built internal media tooling using AWS S3 and facial-recognition workflows.",
+        "Collaborated across multiple engineering teams.",
+        "Learned how production software is reviewed, tested, documented, and shipped.",
+      ],
+    },
+    {
+      type: "role", order: 80,
+      role: "Software Engineer Fellow",
+      org: "Headstarter AI",
+      loc: "Remote",
+      period: "Jul – Aug 2024",
+      points: [
+        "Built AI-powered apps with Next.js, OpenAI, and Stripe in Agile teams alongside industry mentors.",
+        "Shipped multiple projects on a weekly cadence in a cohort of engineers.",
+      ],
+    },
+    {
+      type: "role", order: 70,
+      role: "IT Technician",
+      org: "Saint Joseph’s University",
+      loc: "Philadelphia, PA",
+      period: "May 2024 – May 2026",
+      points: [
+        "Maintained Microsoft Azure infrastructure serving 19,000+ students.",
+        "Handled data security, account provisioning, and day-to-day system upkeep.",
+      ],
+    },
+    {
+      type: "role", order: 60,
+      role: "STEM Instructor",
+      org: "Lavner Education",
+      loc: "Remote",
+      period: "May 2024 – Mar 2025",
+      points: [
+        "Led coding workshops in Python, C++, and Java.",
+        "Introduced students to the fundamentals of AI and machine learning.",
+      ],
+    },
+    { type: "community", order: 30, org: "ColorStack" },
+    { type: "community", order: 29, org: "ForbesBLK" },
+    { type: "community", order: 28, org: "Blacks in Technology" },
+  ],
 
   // --- client work ---
   clientWork: [

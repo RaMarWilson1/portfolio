@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { SITE } from "../content/site";
 import "./portfolio.css";
@@ -11,6 +12,19 @@ const goTo = (id) => {
 };
 const ext = { target: "_blank", rel: "noopener noreferrer" };
 
+function ExpCard({ r }) {
+  return (
+    <div className="xp">
+      <h3 className="role">{r.role}</h3>
+      <div className="meta">{[r.org, r.loc, r.period].filter(Boolean).join(" · ")}</div>
+      {r.note && <p>{r.note}</p>}
+      {r.points && r.points.length > 0 && (
+        <ul>{r.points.map((p, j) => <li key={j}>{p}</li>)}</ul>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const S = SITE;
@@ -21,6 +35,9 @@ export default function Home() {
   const [photos, setPhotos] = useState(S.photos);
   const [poem, setPoem] = useState(S.poem);
   const [issues, setIssues] = useState(S.newsletter.issues);
+  const [experience, setExperience] = useState(S.experience);
+  const [expIdx, setExpIdx] = useState(0);
+  const [expPaused, setExpPaused] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/api/photos`)
@@ -42,7 +59,32 @@ export default function Home() {
         if (d.posts && d.posts.length) setIssues(d.posts.slice(0, 3).map((p) => ({ title: p.title, date: p.date, url: p.url })));
       })
       .catch(() => {});
+    fetch(`${API}/api/experience`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.experience && d.experience.length) {
+          // merge studio-added entries over the config seed, keyed by org+role
+          const key = (e) => `${(e.org || "").toLowerCase()}|${(e.role || "").toLowerCase()}`;
+          const map = new Map();
+          [...S.experience, ...d.experience].forEach((e) => map.set(key(e), e));
+          setExperience(Array.from(map.values()));
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const roles = experience.filter((e) => e.type !== "community").sort((a, b) => (b.order || 0) - (a.order || 0));
+  const communities = experience.filter((e) => e.type === "community").sort((a, b) => (b.order || 0) - (a.order || 0));
+
+  const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // auto-cycle the experience carousel: slide in from the right, loop back to start
+  useEffect(() => {
+    if (reduceMotion || expPaused || roles.length <= 1) return;
+    const id = setInterval(() => setExpIdx((i) => (i + 1) % roles.length), 4600);
+    return () => clearInterval(id);
+  }, [reduceMotion, expPaused, roles.length]);
+  const activeRole = roles[expIdx % roles.length] || roles[0];
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -306,22 +348,47 @@ export default function Home() {
 
         {/* EXPERIENCE */}
         <section className="blk" id="experience"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Experience</span><span className="rule" /><span className="r">Professional software engineering</span></div>
-          <div className="xp">
-            <h3 className="role">Software Engineer Intern</h3>
-            <div className="meta">Medidata Solutions · New York City · Summer 2025</div>
-            <p>Last summer I interned at Medidata in New York and saw how a real engineering team works.
-            It confirmed exactly where I want to keep growing, and gave me hands-on experience shipping
-            software inside a production engineering organization.</p>
-            <ul>
-              <li>Built internal tools in React used by engineering teams.</li>
-              <li>Created ReportPortal dashboards and wrote API documentation.</li>
-              <li>Worked with PostgreSQL-backed reporting and metrics.</li>
-              <li>Built internal media tooling using AWS S3 and facial-recognition workflows.</li>
-              <li>Collaborated across multiple engineering teams.</li>
-              <li>Learned how production software is reviewed, tested, documented, and shipped.</li>
-            </ul>
+          <div className="sec-top"><span className="lbl">Experience</span><span className="rule" /><span className="r">Roles &amp; communities</span></div>
+          <div className="xpcarousel" onMouseEnter={() => setExpPaused(true)} onMouseLeave={() => setExpPaused(false)}>
+            <div className="xptabs" role="tablist">
+              {roles.map((r, i) => (
+                <button
+                  key={i}
+                  className={"xptab" + (i === expIdx % roles.length ? " on" : "")}
+                  onClick={() => setExpIdx(i)}
+                >
+                  {r.org}
+                </button>
+              ))}
+            </div>
+            <div className="xpstage">
+              {reduceMotion ? (
+                <div className="xplist">
+                  {roles.map((r, i) => <ExpCard r={r} key={i} />)}
+                </div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={expIdx % roles.length}
+                    initial={{ opacity: 0, x: 60 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -60 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {activeRole && <ExpCard r={activeRole} />}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </div>
           </div>
+          {communities.length > 0 && (
+            <div className="communities">
+              <span className="clabel">Communities</span>
+              <div className="cbadges">
+                {communities.map((c, i) => <span className="cbadge" key={i}>{c.org}</span>)}
+              </div>
+            </div>
+          )}
         </div></section>
 
         {/* CLIENT WORK */}

@@ -38,6 +38,17 @@ export default function Studio() {
   const [poemStatus, setPoemStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // experience state
+  const [expType, setExpType] = useState("role");
+  const [expRole, setExpRole] = useState("");
+  const [expOrg, setExpOrg] = useState("");
+  const [expLoc, setExpLoc] = useState("");
+  const [expPeriod, setExpPeriod] = useState("");
+  const [expPoints, setExpPoints] = useState("");
+  const [expOrder, setExpOrder] = useState("");
+  const [expStatus, setExpStatus] = useState("");
+  const [savingExp, setSavingExp] = useState(false);
+
   const unlock = () => {
     if (!pw.trim()) return;
     sessionStorage.setItem("studio_pw", pw);
@@ -87,6 +98,27 @@ export default function Studio() {
       setPoemStatus(`Failed: ${err.message}${String(err.message).includes("Unauthorized") ? " — check your password." : ""}`);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function publishExperience() {
+    if (!expOrg.trim()) { setExpStatus("Organization is required."); return; }
+    setSavingExp(true);
+    setExpStatus("Saving…");
+    try {
+      const r = await fetch("/api/experience-upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pw, type: expType, role: expRole, org: expOrg, loc: expLoc, period: expPeriod, points: expPoints, order: expOrder }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed");
+      setExpStatus(`Added “${expRole || expOrg}”. It’ll appear on the site within a minute.`);
+      setExpRole(""); setExpOrg(""); setExpLoc(""); setExpPeriod(""); setExpPoints(""); setExpOrder("");
+    } catch (err) {
+      setExpStatus(`Failed: ${err.message}${String(err.message).includes("Unauthorized") ? " — check your password." : ""}`);
+    } finally {
+      setSavingExp(false);
     }
   }
 
@@ -169,6 +201,62 @@ export default function Studio() {
                 {saving ? "Saving…" : "Publish poem"}
               </button>
               {poemStatus && <p style={{ color: poemStatus.startsWith("Failed") ? C.coral : C.gold, fontSize: 13, marginTop: 14, lineHeight: 1.5 }}>{poemStatus}</p>}
+            </div>
+
+            {/* EXPERIENCE */}
+            <div style={card}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 4px" }}>Add experience</h2>
+              <p style={{ color: C.muted, fontSize: 13, margin: "0 0 18px" }}>
+                A role or a community/membership. Higher <em>order</em> shows first (leave blank to add near the top).
+              </p>
+              <label style={label}>Type</label>
+              <select style={input} value={expType} onChange={(e) => setExpType(e.target.value)}>
+                <option value="role">Role / job</option>
+                <option value="community">Community / membership</option>
+              </select>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 16 }}>
+                <div style={{ flex: "1 1 200px" }}>
+                  <label style={label}>Organization</label>
+                  <input style={input} value={expOrg} onChange={(e) => setExpOrg(e.target.value)} placeholder="Medidata Solutions" />
+                </div>
+                {expType === "role" && (
+                  <div style={{ flex: "1 1 200px" }}>
+                    <label style={label}>Role / title</label>
+                    <input style={input} value={expRole} onChange={(e) => setExpRole(e.target.value)} placeholder="Software Engineer Intern" />
+                  </div>
+                )}
+              </div>
+              {expType === "role" && (
+                <>
+                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 16 }}>
+                    <div style={{ flex: "1 1 160px" }}>
+                      <label style={label}>Location</label>
+                      <input style={input} value={expLoc} onChange={(e) => setExpLoc(e.target.value)} placeholder="New York City" />
+                    </div>
+                    <div style={{ flex: "1 1 160px" }}>
+                      <label style={label}>Period</label>
+                      <input style={input} value={expPeriod} onChange={(e) => setExpPeriod(e.target.value)} placeholder="Summer 2025" />
+                    </div>
+                  </div>
+                  <label style={{ ...label, marginTop: 16 }}>Bullets (one per line)</label>
+                  <textarea
+                    style={{ ...input, minHeight: 110, resize: "vertical", lineHeight: 1.5 }}
+                    value={expPoints}
+                    onChange={(e) => setExpPoints(e.target.value)}
+                    placeholder={"Built internal tools in React.\nWrote API documentation."}
+                  />
+                </>
+              )}
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end", marginTop: 16 }}>
+                <div style={{ flex: "0 1 130px" }}>
+                  <label style={label}>Order (optional)</label>
+                  <input style={input} value={expOrder} onChange={(e) => setExpOrder(e.target.value)} placeholder="90" />
+                </div>
+              </div>
+              <button style={{ ...btn, marginTop: 18, opacity: savingExp ? 0.6 : 1 }} onClick={publishExperience} disabled={savingExp}>
+                {savingExp ? "Saving…" : "Add experience"}
+              </button>
+              {expStatus && <p style={{ color: expStatus.startsWith("Failed") ? C.coral : C.gold, fontSize: 13, marginTop: 14, lineHeight: 1.5 }}>{expStatus}</p>}
             </div>
           </div>
         )}
