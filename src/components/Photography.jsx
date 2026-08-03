@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+// "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const BATCH_SIZE = 9;
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);

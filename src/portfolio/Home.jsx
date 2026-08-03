@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { SITE } from "../content/site";
 import "./portfolio.css";
 
-const API = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+// "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
+const API = import.meta.env.VITE_API_URL ?? "";
 
 const goTo = (id) => {
   const el = document.getElementById(id);
