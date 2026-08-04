@@ -80,7 +80,7 @@ export const SITE = {
       role: "IT Support Technician",
       org: "Saint Joseph’s University",
       loc: "Philadelphia, PA",
-      period: "Jun 2024 – Present",
+      period: "Jun 2024 – May 2026",
       points: [
         "Manage a Microsoft Azure database of 19,000+ student records, ensuring accurate data handling and security protocols.",
         "Conduct routine maintenance across university computer labs with 300+ workstations to keep them running.",
