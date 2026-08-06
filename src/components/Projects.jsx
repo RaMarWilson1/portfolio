@@ -6,16 +6,16 @@ const placeholderImage = "https://via.placeholder.com/400x250?text=Project+Image
 
 const projects = [
   {
-    title: "OneMoreDay",
-    description: "COPPA-compliant mental health support app ",
-    image: "OMDLogo.png",
-    link: "https://onemoredayapp.com",
+    title: "Bontro",
+    description: "Zero-commission booking & payments platform I built and shipped solo — Next.js, TypeScript, Stripe Connect, native iOS/Android, and a PIN-gated in-shop kiosk. Pre-seed backed.",
+    image: "Bontro_Logo.png",
+    link: "https://bontro.co",
   },
   {
-    title: "BookBetter",
-    description: "A seamless booking platform with Stripe integration.",
-    image: "BookBetter_Logo.jpg",
-    link: "https://bookbetter.vercel.app/",
+    title: "One More Day",
+    description: "Peer-support mental health app with a dual-layer AI moderation pipeline and COPPA-compliant onboarding — 95+ users at 50% retention.",
+    image: "OMDLogo.png",
+    link: "https://onemoredayapp.com",
   },
   {
     title: "Luxury Tattoo",

@@ -1,43 +1,30 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import AboutMe from "./components/AboutMe";
-import Skills from "./components/Skills";
-import Projects from "./components/Projects";
-import Experience from "./components/Experience";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
-import BackgroundAnimation from "./components/BackgroundAnimation";
+import Home from "./portfolio/Home";
+import SubNav from "./portfolio/SubNav";
+import Studio from "./portfolio/Studio";
 import Newsletter from "./components/Newsletter";
 import Photography from "./components/Photography";
 import Poetry from "./components/Poetry";
 
-const Home = () => (
-  <>
-    <section id="hero"><Hero /></section>
-    <section id="about"><AboutMe /></section>
-    <section id="skills"><Skills /></section>
-    <section id="projects"><Projects /></section>
-    <section id="experience"><Experience /></section>
-    <section id="contact"><Contact /></section>
-    <Footer />
-  </>
+// Sub-pages share the portfolio dark theme + a matching nav.
+const Sub = ({ children }) => (
+  <div style={{ minHeight: "100vh", background: "#070A18", color: "#EEF1FA" }}>
+    <SubNav />
+    {children}
+  </div>
 );
 
 const App = () => {
   return (
     <Router>
-      <div className="relative min-h-screen text-white">
-        <BackgroundAnimation />
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/newsletter" element={<Newsletter />} />
-          <Route path="/photography" element={<Photography />} />
-          <Route path="/poetry" element={<Poetry />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/newsletter" element={<Sub><Newsletter /></Sub>} />
+        <Route path="/photography" element={<Sub><Photography /></Sub>} />
+        <Route path="/poetry" element={<Sub><Poetry /></Sub>} />
+        <Route path="/studio" element={<Studio />} />
+      </Routes>
     </Router>
   );
 };

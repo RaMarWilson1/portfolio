@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+// "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const BATCH_SIZE = 9;
 
-const FILTERS = [
-  { key: "all",    label: "All" },
-  { key: "cars",   label: "Cars" },
-  { key: "street", label: "Street" },
-  { key: "sports", label: "Sports" },
-  { key: "misc",   label: "Misc" },
-];
+const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -43,6 +38,8 @@ const Photography = () => {
   useEffect(() => {
     setVisibleCount(BATCH_SIZE);
   }, [active]);
+
+  const filters = ["all", ...Array.from(new Set(photos.map((p) => p.category).filter(Boolean)))];
 
   const filtered = active === "all"
     ? photos
@@ -101,7 +98,7 @@ const Photography = () => {
             Through the{" "}
             <span
               className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)" }}
+              style={{ backgroundImage: "linear-gradient(120deg, #F2B85C, #F2765C)" }}
             >
               lens.
             </span>
@@ -114,33 +111,35 @@ const Photography = () => {
         </div>
 
         {/* ── Filters ─────────────────────────────────── */}
+        {filters.length > 2 && (
         <motion.div {...fadeUp(0.2)} className="flex flex-wrap gap-2">
-          {FILTERS.map(({ key, label }) => (
+          {filters.map((key) => (
             <button
               key={key}
               onClick={() => setActive(key)}
               className="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all duration-200"
               style={{
                 background: active === key
-                  ? "linear-gradient(135deg, #ef4444, #3b82f6)"
+                  ? "linear-gradient(120deg, #F2B85C, #F2765C)"
                   : "rgba(255,255,255,0.05)",
-                color: active === key ? "#fff" : "rgba(255,255,255,0.4)",
+                color: active === key ? "#0b0b0b" : "rgba(255,255,255,0.5)",
                 border: active === key
                   ? "1px solid transparent"
                   : "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              {label}
+              {key === "all" ? "All" : cap(key)}
             </button>
           ))}
         </motion.div>
+        )}
 
         {/* ── Loading ─────────────────────────────────── */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <div
               className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
-              style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
+              style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
             />
             <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
               Loading photos...
@@ -154,7 +153,7 @@ const Photography = () => {
             className="p-6 rounded-xl text-center"
             style={{
               border: "1px solid rgba(239,68,68,0.3)",
-              background: "rgba(239,68,68,0.05)",
+              background: "rgba(242,184,92,0.08)",
             }}
           >
             <p className="text-red-400 text-sm">{error}</p>
@@ -231,7 +230,7 @@ const Photography = () => {
               <div ref={loaderRef} className="flex justify-center py-8">
                 <div
                   className="w-8 h-8 rounded-full border-2 border-transparent animate-spin"
-                  style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
+                  style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
                 />
               </div>
             )}

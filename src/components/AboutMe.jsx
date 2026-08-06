@@ -79,10 +79,11 @@ const AboutMe = () => {
             {...fadeUp(0.2)}
             className="text-gray-300 text-base leading-relaxed text-left"
           >
-            Hey, I'm <strong className="text-white">Ra'Mar</strong> — a Software Engineer,
-            Designer, and Innovator who loves building intuitive, visually engaging digital
-            experiences. Whether it's crafting seamless UIs or developing full-scale
-            applications, I'm always pushing to bring ideas to life with clean, efficient code.
+            Hey, I'm <strong className="text-white">Ra'Mar</strong> — a product engineer and
+            first-gen CS grad who ships end-to-end, from the product call to production. I've
+            been a <strong className="text-white">barber for six years</strong>, so when I built{" "}
+            <strong className="text-white">Bontro</strong> — a booking & payments platform for
+            service pros — I wasn't studying the problem from the outside. I lived it.
           </motion.p>
 
           <motion.p
@@ -109,9 +110,9 @@ const AboutMe = () => {
           {/* Stat chips */}
           <motion.div {...fadeUp(0.4)} className="flex flex-wrap gap-3 pt-2">
             {[
-              { label: "CS Senior",  sub: "Saint Joseph's University" },
-              { label: "90+ Users",  sub: "One More Day" },
-              { label: "Full-Stack", sub: "React · Next · Node" },
+              { label: "CS Grad '26",       sub: "Saint Joseph's University" },
+              { label: "Founder",           sub: "Bontro · pre-seed backed" },
+              { label: "Barber × Engineer", sub: "6 years behind the chair" },
             ].map(({ label, sub }) => (
               <div
                 key={label}

@@ -56,6 +56,7 @@ export default async function handler(req, res) {
       .filter(Boolean)
       .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
 
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
     return res.status(200).json({ poems: validPoems });
   } catch (err) {

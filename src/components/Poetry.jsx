@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://www.ramarwilson.com";
+// "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -59,7 +60,7 @@ const Poetry = () => {
             Between the{" "}
             <span
               className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(90deg, #ef4444, #3b82f6)" }}
+              style={{ backgroundImage: "linear-gradient(120deg, #F2B85C, #F2765C)" }}
             >
               lines.
             </span>
@@ -75,7 +76,7 @@ const Poetry = () => {
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <div
               className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
-              style={{ borderTopColor: "#ef4444", borderRightColor: "#3b82f6" }}
+              style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
             />
             <p
               style={{
@@ -111,18 +112,18 @@ const Poetry = () => {
                 className="w-full rounded-2xl overflow-hidden"
                 style={{
                   padding: "2px",
-                  background: "linear-gradient(135deg, #ef4444, #3b82f6)",
+                  background: "linear-gradient(120deg, #F2B85C, #F2765C)",
                 }}
               >
                 <div
                   className="w-full rounded-2xl p-8 md:p-12 flex flex-col gap-6"
-                  style={{ background: "#0f0f0f" }}
+                  style={{ background: "#111935" }}
                 >
                   <div className="flex items-center gap-3">
                     <span
                       className="text-xs font-bold px-3 py-1 rounded-full"
                       style={{
-                        background: "linear-gradient(135deg, #ef4444, #3b82f6)",
+                        background: "linear-gradient(120deg, #F2B85C, #F2765C)",
                         color: "#fff",
                         fontFamily: "monospace",
                       }}
@@ -190,11 +191,11 @@ const Poetry = () => {
                       style={{
                         border:
                           selected?.id === poem.id
-                            ? "1px solid rgba(239,68,68,0.5)"
+                            ? "1px solid rgba(242,184,92,0.5)"
                             : "1px solid rgba(255,255,255,0.07)",
                         background:
                           selected?.id === poem.id
-                            ? "rgba(239,68,68,0.05)"
+                            ? "rgba(242,184,92,0.08)"
                             : "rgba(255,255,255,0.02)",
                       }}
                       whileHover={{ scale: 1.02 }}
@@ -219,7 +220,7 @@ const Poetry = () => {
                       <span
                         className="text-xs font-semibold mt-auto"
                         style={{
-                          background: "linear-gradient(90deg, #ef4444, #3b82f6)",
+                          background: "linear-gradient(120deg, #F2B85C, #F2765C)",
                           WebkitBackgroundClip: "text",
                           WebkitTextFillColor: "transparent",
                         }}
@@ -255,7 +256,7 @@ const Poetry = () => {
               onClick={(e) => e.stopPropagation()}
               className="relative w-full max-w-2xl rounded-2xl p-8 md:p-12 flex flex-col gap-6 overflow-y-auto"
               style={{
-                background: "#0f0f0f",
+                background: "#111935",
                 border: "1px solid rgba(255,255,255,0.1)",
                 maxHeight: "85vh",
               }}
