@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(gh pr *)",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(sips -g pixelWidth -g pixelHeight public/IMG_0905.JPG)",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git push *)"
     ]
   }
 }

@@ -18,7 +18,7 @@ export const SITE = {
   calendar: "https://calendar.app.google/LdijLj8JrYTdZvmt7",
 
   // --- images ---
-  headshot: "/03B77C77-08B5-4849-9587-75632D12316B_1_105_c.jpeg",
+  headshot: "/IMG_0905.JPG",
   journey: {
     mays: "/journey/mays.jpg",
     philly: "/journey/philly.jpg",
@@ -143,9 +143,9 @@ export const SITE = {
       desc:
         "A shot clock and scoreboard for pickup basketball. I ran open runs at school for two years, so I built the tool we needed.",
       tt: "Web app",
-      mini: "Basketball · Web",
-      url: "https://github.com/RaMarWilson1/Openruns",
-      go: "GitHub ↗",
+      shot: "/projects/openruns.jpg",
+      url: "https://openruns-snowy.vercel.app/",
+      go: "Live ↗",
     },
     {
       title: "Bach Music Generator",

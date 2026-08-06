@@ -27,7 +27,10 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    const posts = data.data.map((post) => ({
+    const posts = (data.data || [])
+      .slice()
+      .sort((a, b) => (b.publish_date || 0) - (a.publish_date || 0))
+      .map((post) => ({
       id: post.id,
       title: post.title,
       subtitle: post.subtitle ?? "",
