@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { SITE } from "../content/site";
+import SiteNav from "./SiteNav";
+import SiteFooter from "./SiteFooter";
+import { sectionLink } from "./nav";
+import { fetchJson } from "../lib/fetchJson";
+import { trackClick } from "../lib/analytics";
+import BlobImage from "../lib/BlobImage";
+import { episodeAria, episodeLabel, inSeries } from "../lib/ncv";
 import "./portfolio.css";
 
 // "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
 const API = import.meta.env.VITE_API_URL ?? "";
 
-const goTo = (id) => {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth" });
-};
 const ext = { target: "_blank", rel: "noopener noreferrer" };
+
+const issueLabel = (n) => `Issue ${String(n).padStart(2, "0")}`;
 
 function ExpCard({ r }) {
   return (
@@ -28,8 +33,9 @@ function ExpCard({ r }) {
   );
 }
 
+const project = (name, link) => trackClick("portfolio_project_opened", { project: name, link });
+
 export default function Home() {
-  const navigate = useNavigate();
   const S = SITE;
 
   // Live content — falls back to config, then updates from the same APIs the
@@ -37,37 +43,49 @@ export default function Home() {
   // it shows up here too, no code change.
   const [photos, setPhotos] = useState(S.photos);
   const [poem, setPoem] = useState(S.poem);
-  const [issues, setIssues] = useState(S.newsletter.issues);
+  const [series, setSeries] = useState(S.noCleanVersion);
+  const [issues, setIssues] = useState(S.newsletter.issues.slice(0, 3));
+  const [issueTotal, setIssueTotal] = useState(S.newsletter.issues.length);
   const [experience, setExperience] = useState(S.experience);
 
+  // Each request is independent and falls back silently to the config values.
   useEffect(() => {
-    fetch(`${API}/api/photos`)
-      .then((r) => r.json())
+    fetchJson(`${API}/api/photos`)
       .then((d) => {
-        if (d.photos && d.photos.length) setPhotos(d.photos.slice(0, 4).map((p) => p.thumb));
+        if (Array.isArray(d.photos) && d.photos.length) setPhotos(d.photos.slice(0, 4).map((p) => p.thumb));
       })
       .catch(() => {});
-    fetch(`${API}/api/poems`)
-      .then((r) => r.json())
+    fetchJson(`${API}/api/poems`)
       .then((d) => {
-        const f = (d.poems || []).find((p) => p.featured) || (d.poems || [])[0];
-        if (f && f.body) setPoem({ lines: f.body.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 3), title: f.title });
+        const list = Array.isArray(d.poems) ? d.poems : [];
+        if (d.series) setSeries(d.series);
+        const f = list.find((p) => p.featured) || list[0];
+        if (f && f.body) {
+          setPoem({
+            lines: f.body.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 3),
+            title: f.title,
+            seriesNumber: inSeries(f) ? f.seriesNumber : null,
+          });
+        }
       })
       .catch(() => {});
-    fetch(`${API}/api/posts`)
-      .then((r) => r.json())
+    fetchJson(`${API}/api/posts`)
       .then((d) => {
-        if (d.posts && d.posts.length) setIssues(d.posts.slice(0, 3).map((p) => ({ title: p.title, date: p.date, url: p.url })));
+        // /api/posts returns newest → oldest with issue numbers already derived.
+        const posts = Array.isArray(d.posts) ? d.posts.filter((p) => p && p.url && p.title) : [];
+        if (posts.length) {
+          setIssues(posts.slice(0, 3).map((p) => ({ title: p.title, date: p.date, url: p.url, issueNumber: p.issueNumber })));
+          setIssueTotal(d.total || posts.length);
+        }
       })
       .catch(() => {});
-    fetch(`${API}/api/experience`)
-      .then((r) => r.json())
+    fetchJson(`${API}/api/experience`)
       .then((d) => {
-        if (d.experience && d.experience.length) {
+        if (Array.isArray(d.experience) && d.experience.length) {
           // merge studio-added entries over the config seed, keyed by org+role
           const key = (e) => `${(e.org || "").toLowerCase()}|${(e.role || "").toLowerCase()}`;
           const map = new Map();
-          [...S.experience, ...d.experience].forEach((e) => map.set(key(e), e));
+          [...SITE.experience, ...d.experience].forEach((e) => map.set(key(e), e));
           setExperience(Array.from(map.values()));
         }
       })
@@ -187,46 +205,16 @@ export default function Home() {
     };
     window.addEventListener("resize", onResize);
 
-    // scrollspy
-    const spy = [].slice.call(document.querySelectorAll(".pf .nav a[data-spy]"));
-    const secs = spy.map((a) => document.getElementById(a.getAttribute("data-spy"))).filter(Boolean);
-    let io;
-    if ("IntersectionObserver" in window) {
-      io = new IntersectionObserver(
-        (es) => {
-          es.forEach((e) => {
-            if (e.isIntersecting)
-              spy.forEach((a) => a.classList.toggle("active", a.getAttribute("data-spy") === e.target.id));
-          });
-        },
-        { rootMargin: "-45% 0px -50% 0px" }
-      );
-      secs.forEach((s) => io.observe(s));
-    }
-
     return () => {
       window.removeEventListener("scroll", req);
       window.removeEventListener("resize", onResize);
       if (rafId) cancelAnimationFrame(rafId);
-      if (io) io.disconnect();
     };
   }, []);
 
   return (
     <div className="pf">
-      <a className="skip" href="#work" onClick={(e) => { e.preventDefault(); goTo("work"); }}>Skip to work</a>
-
-      <nav className="nav" aria-label="Primary">
-        <button className="brand" onClick={() => goTo("top")}>RA’MAR WILSON</button>
-        <div className="links">
-          <button className="hide" data-spy="work" onClick={() => goTo("work")}>Work</button>
-          <button className="hide" data-spy="experience" onClick={() => goTo("experience")}>Experience</button>
-          <button className="hide" data-spy="about" onClick={() => goTo("about")}>About</button>
-          <button className="hide" data-spy="between" onClick={() => goTo("between")}>Between</button>
-          <a className="rez" href={S.resume} {...ext}>Résumé</a>
-          <a data-spy="contact" href="#contact" onClick={(e) => { e.preventDefault(); goTo("contact"); }}>Contact</a>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* JOURNEY */}
       <div className="journey" id="top">
@@ -242,8 +230,8 @@ export default function Home() {
             <h1 className="nm">RA’MAR WILSON</h1>
             <div className="rl">{S.role}</div>
             <div className="cta">
-              <button className="btn solid" onClick={() => goTo("work")}>View my work</button>
-              <button className="btn ghost" onClick={() => goTo("contact")}>Contact me</button>
+              <Link className="btn solid" to={sectionLink("work")}>View my work</Link>
+              <Link className="btn ghost" to={sectionLink("contact")}>Contact me</Link>
             </div>
             <p className="avail">{S.availability}</p>
           </div>
@@ -259,9 +247,30 @@ export default function Home() {
         </div>
       </div>
 
-      <main>
+      <main id="main">
         {/* ABOUT + METRICS */}
         <section className="blk" id="about"><div className="wrap">
+          <ul className="modes" aria-label="What I make">
+            <li className="mode">
+              <span className="k">Build<i>.</i></span>
+              <span className="d">Software &amp; products</span>
+              <span className="go"><Link to={sectionLink("work")}>See the work →</Link></span>
+            </li>
+            <li className="mode">
+              <span className="k">Write<i>.</i></span>
+              <span className="d">
+                <Link to="/poetry" onClick={trackClick("no_clean_version_opened", { location: "write_row" })}>No Clean Version</Link>
+                {" · "}
+                <Link to="/newsletter">Between Commits</Link>
+              </span>
+            </li>
+            <li className="mode">
+              <span className="k">Shoot<i>.</i></span>
+              <span className="d">Photography</span>
+              <span className="go"><Link to="/photography">Gallery →</Link></span>
+            </li>
+          </ul>
+
           <div className="story">
             <div className="portrait">
               <img src={S.headshot} alt="Ra’Mar Wilson" />
@@ -285,6 +294,12 @@ export default function Home() {
                 <span className="stop"><b>Philadelphia</b> · SJU ’26</span>
                 <span className="stop now"><b>New York</b> · next ↗</span>
               </div>
+              {S.currently?.length > 0 && (
+                <div className="currently">
+                  <span className="ck"><span className="pulse" aria-hidden="true" />Currently</span>
+                  <ul>{S.currently.map((c) => <li key={c}>{c}</li>)}</ul>
+                </div>
+              )}
             </div>
           </div>
           <div className="stats">
@@ -298,10 +313,10 @@ export default function Home() {
 
         {/* WORK */}
         <section className="blk" id="work"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Work</span><span className="rule" /><span className="r">Products I designed and shipped</span></div>
+          <div className="sec-top"><h2 className="lbl">Work</h2><span className="rule" /><span className="r">Products I designed and shipped</span></div>
 
           <div className="feat"><div className="in">
-            <a className="shot" href={S.bontro.web} {...ext}><span className="badge">bontro.co</span><img src={S.bontro.shot} alt="Bontro booking and payments platform" loading="lazy" /></a>
+            <a className="shot" href={S.bontro.web} {...ext} onClick={project("Bontro", "screenshot")}><span className="badge">bontro.co</span><img src={S.bontro.shot} alt="Bontro booking and payments platform" loading="lazy" /></a>
             <div className="txt">
               <h3>Bon<em>tro</em></h3>
               <p className="sub">Booking &amp; payments for independent pros</p>
@@ -315,14 +330,14 @@ export default function Home() {
               of every booking.</p>
               <div className="stack">{S.bontro.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
               <div className="acts">
-                <a className="visit" href={S.bontro.web} {...ext}>Open bontro.co →</a>
-                <a className="visit alt" href={S.bontro.app} {...ext}>View app ↗</a>
+                <a className="visit" href={S.bontro.web} {...ext} onClick={project("Bontro", "site")}>Open bontro.co →</a>
+                <a className="visit alt" href={S.bontro.app} {...ext} onClick={project("Bontro", "app")}>View app ↗</a>
               </div>
             </div>
           </div></div>
 
           <div className="feat rev"><div className="in">
-            <a className="shot" href={S.oneMoreDay.web} {...ext}><span className="badge">one-more-day</span><img src={S.oneMoreDay.shot} alt="One More Day mental-health platform" loading="lazy" /></a>
+            <a className="shot" href={S.oneMoreDay.web} {...ext} onClick={project("One More Day", "screenshot")}><span className="badge">one-more-day</span><img src={S.oneMoreDay.shot} alt="One More Day mental-health platform" loading="lazy" /></a>
             <div className="txt">
               <h3>One More <em>Day</em></h3>
               <p className="sub">A free mental-health platform</p>
@@ -334,14 +349,14 @@ export default function Home() {
               and put appropriate resources in front of users when concerning language appears. The
               platform has grown to <b>more than 95 registered users, with roughly half returning</b>.</p>
               <div className="stack">{S.oneMoreDay.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
-              <div className="acts"><a className="visit" href={S.oneMoreDay.web} {...ext}>See One More Day →</a></div>
+              <div className="acts"><a className="visit" href={S.oneMoreDay.web} {...ext} onClick={project("One More Day", "site")}>See One More Day →</a></div>
             </div>
           </div></div>
         </div></section>
 
         {/* EXPERIENCE */}
         <section className="blk" id="experience"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Experience</span><span className="rule" /><span className="r">Roles &amp; communities</span></div>
+          <div className="sec-top"><h2 className="lbl">Experience</h2><span className="rule" /><span className="r">Roles &amp; communities</span></div>
           {reduceMotion ? (
             <div className="xpgrid">
               {roles.map((r, i) => <ExpCard r={r} key={i} />)}
@@ -365,13 +380,13 @@ export default function Home() {
 
         {/* CLIENT WORK */}
         <section className="blk"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Client work</span><span className="rule" /><span className="r">Real sites, real clients</span></div>
+          <div className="sec-top"><h2 className="lbl">Client work</h2><span className="rule" /><span className="r">Real sites, real clients</span></div>
           <div className="grid">
             {S.clientWork.map((p) => (
-              <a className="pcard" href={p.url} {...ext} key={p.title}>
+              <a className="pcard" href={p.url} {...ext} key={p.title} onClick={project(p.title, "client")}>
                 <div className="thumb"><img src={p.shot} alt={p.title + " website"} loading="lazy" /></div>
                 <div className="pc">
-                  <div className="top"><h4>{p.title}</h4><span className="paid">{p.badge}</span></div>
+                  <div className="top"><h3>{p.title}</h3><span className="paid">{p.badge}</span></div>
                   <p>{p.desc}</p>
                   <div className="row"><span className="tt">{p.tt}</span><span className="go">Live ↗</span></div>
                 </div>
@@ -382,36 +397,43 @@ export default function Home() {
 
         {/* TOOLS */}
         <section className="blk"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Tools &amp; experiments</span><span className="rule" /><span className="r">Things I built for myself</span></div>
+          <div className="sec-top"><h2 className="lbl">Tools &amp; experiments</h2><span className="rule" /><span className="r">Things I built for myself</span></div>
           <div className="grid three">
             {S.tools.map((p) => (
-              <a className={"pcard" + (p.mini ? " mini" : "")} href={p.url} {...ext} key={p.title}>
+              <a className={"pcard" + (p.mini ? " mini" : "")} href={p.url} {...ext} key={p.title} onClick={project(p.title, "tool")}>
                 <div className="thumb">{p.mini ? <span>{p.mini}</span> : <img src={p.shot} alt={p.title} loading="lazy" />}</div>
                 <div className="pc">
-                  <h4>{p.title}</h4>
+                  <h3>{p.title}</h3>
                   <p>{p.desc}</p>
                   <div className="row"><span className="tt">{p.tt}</span><span className="go">{p.go}</span></div>
                 </div>
               </a>
             ))}
           </div>
-          <a className="ghlink" href={S.github} {...ext}>Explore more on GitHub ↗</a>
+          <a className="ghlink" href={S.github} {...ext} onClick={trackClick("github_opened", { location: "tools" })}>Explore more on GitHub ↗</a>
         </div></section>
 
         {/* NEWSLETTER */}
         <section className="blk" id="between"><div className="wrap">
-          <div className="sec-top"><span className="lbl">Between</span><span className="rule" /><span className="r">Writing · photography · poetry</span></div>
+          <div className="sec-top"><h2 className="lbl">Newsletter</h2><span className="rule" /><span className="r">Writing · photography · poetry</span></div>
           <div className="news">
             <div className="nhead">
               <div>
-                <span className="live">Published · {issues.length} issues</span>
+                <span className="live">Published · {issueTotal} {issueTotal === 1 ? "issue" : "issues"}</span>
                 <h3>Between <span>Commits</span></h3>
                 <p className="desc">I write about building Bontro, becoming a better engineer, cars,
                 creativity, and whatever I’m working through between commits.</p>
                 <div className="acts">
-                  <a className="visit" href={issues[0].url} {...ext}>Read the latest issue →</a>
-                  <a className="visit alt" href={S.newsletter.home} {...ext}>View all issues</a>
-                  <a className="visit alt" href={S.newsletter.subscribe} {...ext}>Subscribe</a>
+                  <a
+                    className="visit"
+                    href={issues[0]?.url || S.newsletter.home}
+                    {...ext}
+                    onClick={trackClick("newsletter_issue_opened", { issue: issues[0]?.title, issueNumber: issues[0]?.issueNumber ?? issueTotal, location: "home_latest" })}
+                  >
+                    Read the latest issue →
+                  </a>
+                  <a className="visit alt" href={S.newsletter.home} {...ext} onClick={trackClick("newsletter_opened", { source: "home_archive" })}>View all issues</a>
+                  <a className="visit alt" href={S.newsletter.subscribe} {...ext} onClick={trackClick("newsletter_subscribe_clicked", { location: "home" })}>Subscribe</a>
                 </div>
               </div>
               <div className="mono" style={{ color: "var(--pf-muted)", lineHeight: 1.8 }}>
@@ -420,9 +442,15 @@ export default function Home() {
             </div>
             <div className="issues">
               {issues.map((it, i) => (
-                <a className="issue" href={it.url} {...ext} key={it.url}>
-                  <span className="no">{i === 0 ? "New" : "0" + (issues.length - i)}</span>
-                  <span className="t">{it.title}</span>
+                <a
+                  className="issue"
+                  href={it.url}
+                  {...ext}
+                  key={it.url}
+                  onClick={trackClick("newsletter_issue_opened", { issue: it.title, issueNumber: it.issueNumber ?? issueTotal - i, location: "home_list" })}
+                >
+                  <span className="no">{issueLabel(it.issueNumber ?? issueTotal - i)}</span>
+                  <span className="t">{it.title}{i === 0 && <span className="latest">Latest</span>}</span>
                   <span className="d">{it.date}</span>
                   <span className="a">Read ↗</span>
                 </a>
@@ -432,32 +460,51 @@ export default function Home() {
         </div></section>
 
         {/* PHOTOGRAPHY + POETRY */}
-        <section className="blk"><div className="wrap">
+        <section className="blk" aria-labelledby="creative-h"><div className="wrap">
+          <h2 className="sr-only" id="creative-h">Photography and poetry</h2>
           <div className="creative">
             <div className="photostrip">
               <div className="ps-head">
-                <div><div className="t">Photography</div><div className="d">Landscapes and light, mostly. What I shoot to get out of my head.</div></div>
-                <button onClick={() => navigate("/photography")}>View gallery ↗</button>
+                <div><h3 className="t">Photography</h3><div className="d">Landscapes and light, mostly. What I shoot to get out of my head.</div></div>
+                <Link className="ps-go" to="/photography">View gallery ↗</Link>
               </div>
-              <div className="ps-imgs">
+              <Link className="ps-imgs" to="/photography" aria-label="Open the photography gallery">
                 {photos.map((src, i) => (
-                  <img src={src} alt="Photograph by Ra’Mar Wilson" loading="lazy" key={i} onClick={() => navigate("/photography")} style={{ cursor: "pointer" }} />
+                  <BlobImage
+                    key={src + i}
+                    src={src}
+                    alt=""
+                    widths={[384, 640]}
+                    sizes="(min-width: 760px) 25vw, 50vw"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ))}
-              </div>
+              </Link>
             </div>
             <div className="cbottom">
               <div className="poem">
-                <div className="lbl">Poetry</div>
+                <div className="ncv-head">
+                  <span className="lbl ncv-name">{series.title}</span>
+                  <span className="lbl">{series.subtitle}</span>
+                </div>
                 <blockquote>
                   “{poem.lines.map((l, i) => (<React.Fragment key={i}>{l}{i < poem.lines.length - 1 && <br />}</React.Fragment>))}”
                 </blockquote>
-                <div className="cite">from “{poem.title}”</div>
-                <button onClick={() => navigate("/poetry")}>Read more poems ↗</button>
+                <div className="cite">
+                  from “{poem.title}”
+                  {series.numberingEnabled !== false && poem.seriesNumber ? (
+                    <span> · <span aria-hidden="true">{episodeLabel(poem.seriesNumber, "NCV")}</span><span className="sr-only">{episodeAria(poem.seriesNumber, series.title)}</span></span>
+                  ) : null}
+                </div>
+                <Link className="go" to="/poetry" onClick={trackClick("no_clean_version_opened", { location: "home_poem" })}>
+                  Read {series.title} →
+                </Link>
               </div>
               <div className="poem">
                 <div className="lbl">Off the clock</div>
                 <blockquote className="plain">Cars, basketball, and a camera. The stuff that keeps me steady while I build. It all feeds the work more than it competes with it.</blockquote>
-                <a className="mono" style={{ color: "var(--pf-gold)", marginTop: "auto", paddingTop: 18, textDecoration: "none" }} href={S.newsletter.home} {...ext}>More in the newsletter ↗</a>
+                <a className="go" href={S.newsletter.home} {...ext} onClick={trackClick("newsletter_opened", { source: "home_off_clock" })}>More in the newsletter ↗</a>
               </div>
             </div>
           </div>
@@ -471,29 +518,18 @@ export default function Home() {
             want to work with strong engineers, contribute to products people actually use, and keep
             growing by shipping real work.</p>
             <div className="acts">
-              <a className="visit" href={S.calendar} {...ext}>Book a call →</a>
-              <a className="visit alt" href={"mailto:" + S.email}>Email me</a>
-              <a className="visit alt" href={S.linkedin} {...ext}>LinkedIn ↗</a>
-              <a className="visit alt" href={S.github} {...ext}>GitHub ↗</a>
-              <a className="visit alt" href={S.resume} {...ext}>Résumé ↗</a>
+              <a className="visit" href={S.calendar} {...ext} onClick={trackClick("contact_clicked", { method: "calendar", location: "contact" })}>Book a call →</a>
+              <a className="visit alt" href={"mailto:" + S.email} onClick={trackClick("contact_clicked", { method: "email", location: "contact" })}>Email me</a>
+              <a className="visit alt" href={S.linkedin} {...ext} onClick={trackClick("linkedin_opened", { location: "contact" })}>LinkedIn ↗</a>
+              <a className="visit alt" href={S.github} {...ext} onClick={trackClick("github_opened", { location: "contact" })}>GitHub ↗</a>
+              <a className="visit alt" href={S.resume} {...ext} onClick={trackClick("resume_opened", { location: "contact" })}>Résumé ↗</a>
             </div>
           </div>
           <div className="signoff">Life. Code. <span>Everything between.</span></div>
         </div></section>
 
-        <footer><div className="wrap">
-          <div className="frow">
-            <span className="mono" style={{ color: "var(--pf-muted)" }}>© 2026 Ra’Mar Wilson</span>
-            <div className="lk">
-              <a href={S.github} {...ext}>GitHub</a>
-              <a href={S.linkedin} {...ext}>LinkedIn</a>
-              <a href={"mailto:" + S.email}>Email</a>
-              <a href={S.resume} {...ext}>Résumé</a>
-            </div>
-          </div>
-          <div className="fine">Mays Landing → Philadelphia → New York · Skyline photography via Wikimedia Commons (CC BY-SA).</div>
-        </div></footer>
       </main>
+      <SiteFooter />
     </div>
   );
 }

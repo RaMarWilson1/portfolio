@@ -10,12 +10,24 @@ export const SITE = {
   availability:
     "Computer Science graduate seeking software engineering opportunities in New York City and Northern New Jersey.",
 
+  // Canonical production origin (the apex domain 308-redirects here).
+  url: "https://www.ramarwilson.com",
+
   // --- links ---
   resume: "/RaMarWilson-Resume.pdf",
   email: "ramarwilson1@gmail.com",
   github: "https://github.com/ramarwilson1",
   linkedin: "https://www.linkedin.com/in/ramarwilson1/",
   calendar: "https://calendar.app.google/LdijLj8JrYTdZvmt7",
+  // Other public profiles (used for structured data, not shown in the UI).
+  profiles: ["https://www.youtube.com/@ramarwilson1", "https://www.instagram.com/ramarwilson1"],
+
+  // --- "Currently" — the small freshness signal on the homepage. Keep it short. ---
+  currently: [
+    "Building Bontro",
+    "Writing No Clean Version",
+    "Looking for the right engineering team in NYC / Northern NJ",
+  ],
 
   // --- images ---
   headshot: "/IMG_0905.JPG",
@@ -162,7 +174,13 @@ export const SITE = {
   newsletter: {
     home: "https://betweencommits.beehiiv.com",
     subscribe: "https://betweencommits.beehiiv.com/subscribe",
+    // Static fallback if Beehiiv is unreachable — newest first.
     issues: [
+      {
+        title: "July was humbling. I'm still building.",
+        date: "Aug 7, 2026",
+        url: "https://betweencommits.beehiiv.com/p/july-was-humbling-i-m-still-building",
+      },
       {
         title: "Still in the basement. Still building.",
         date: "Jul 6, 2026",
@@ -189,6 +207,16 @@ export const SITE = {
     "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_%20-%2010.jpeg",
     "https://fbmdkppzlt8wjpjn.public.blob.vercel-storage.com/photography/nature_%20-%2030.jpeg",
   ],
+
+  // --- No Clean Version: defaults for the poetry series. The live values are
+  //     edited from /studio and served by /api/poems as `series`. ---
+  noCleanVersion: {
+    title: "No Clean Version",
+    subtitle: "Poetry by Ra’Mar Wilson",
+    description: "Written raw. Read the same way.",
+    numberingEnabled: true,
+    links: [],
+  },
 
   poem: {
     lines: ["French Press mornings,", "steam curling through a cracked window,", "the skyline still half asleep."],

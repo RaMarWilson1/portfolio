@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { SITE } from "../content/site";
+import { fetchJson } from "../lib/fetchJson";
+import { trackClick } from "../lib/analytics";
 
 const WHAT_TO_EXPECT = [
   { emoji: "💻", label: "Code",        desc: "What I'm building, shipping, and learning. No fluff." },
@@ -31,16 +34,31 @@ const useBeehiivScript = () => {
   }, []);
 };
 
+// Static issues from site config, numbered newest-first, for when Beehiiv is unreachable.
+const FALLBACK_POSTS = SITE.newsletter.issues.map((it, i, all) => ({
+  id: it.url,
+  title: it.title,
+  date: it.date,
+  url: it.url,
+  issueNumber: all.length - i,
+}));
+
 const Newsletter = () => {
   const [posts, setPosts]     = useState([]);
   const [loading, setLoading] = useState(true);
+  const [offline, setOffline] = useState(false); // showing the static fallback list
   useBeehiivScript();
 
   useEffect(() => {
-    fetch("/api/posts")
-      .then((r) => r.json())
-      .then((data) => setPosts(data.posts ?? []))
-      .catch(() => setPosts([]))
+    fetchJson("/api/posts")
+      .then((data) => {
+        const list = Array.isArray(data.posts) ? data.posts.filter((p) => p && p.url && p.title) : [];
+        setPosts(list);
+      })
+      .catch(() => {
+        setPosts(FALLBACK_POSTS);
+        setOffline(true);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -69,7 +87,7 @@ const Newsletter = () => {
             between.
           </motion.h1>
 
-          <motion.p {...fadeUp(0.2)} className="text-gray-400 text-lg leading-relaxed max-w-xl">
+          <motion.p {...fadeUp(0.2)} className="text-lg leading-relaxed max-w-xl" style={{ color: "#A6AFCE" }}>
             A personal newsletter by <strong className="text-white">Ra'Mar Wilson</strong>.
             Photography, cars, code, and real life — shipped to your inbox whenever
             something feels worth saying.
@@ -79,8 +97,8 @@ const Newsletter = () => {
             {["No spam, ever", "Always free", "Real talk only"].map((chip) => (
               <span
                 key={chip}
-                className="px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 text-gray-400"
-                style={{ background: "rgba(255,255,255,0.03)" }}
+                className="px-3 py-1.5 rounded-full text-xs font-medium border border-white/10"
+                style={{ color: "#C9D0E6", background: "rgba(255,255,255,0.03)" }}
               >
                 {chip}
               </span>
@@ -99,6 +117,8 @@ const Newsletter = () => {
               src="https://subscribe-forms.beehiiv.com/5e20b655-bf2c-4a0e-beca-7d8373d7c38a"
               className="beehiiv-embed"
               data-test-id="beehiiv-embed"
+              title="Subscribe to Between Commits"
+              loading="lazy"
               frameBorder="0"
               scrolling="no"
               style={{
@@ -116,7 +136,7 @@ const Newsletter = () => {
         {/* ── What's inside ─────────────────────────────── */}
         <motion.div {...fadeUp(0)} className="flex flex-col gap-8">
           <div>
-            <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", marginBottom: 10 }}>
+            <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#A6AFCE", fontFamily: "monospace", marginBottom: 10 }}>
               What's inside
             </p>
             <h2 className="text-white text-2xl font-bold">Every issue, you get:</h2>
@@ -133,10 +153,10 @@ const Newsletter = () => {
                 className="flex gap-4 p-5 rounded-xl border border-white/[0.07]"
                 style={{ background: "rgba(255,255,255,0.02)" }}
               >
-                <span className="text-2xl leading-none pt-0.5">{emoji}</span>
+                <span className="text-2xl leading-none pt-0.5" aria-hidden="true">{emoji}</span>
                 <div>
                   <p className="text-white font-semibold text-sm mb-1">{label}</p>
-                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "#A6AFCE" }}>{desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -148,9 +168,17 @@ const Newsletter = () => {
 
         {/* ── Issues archive ────────────────────────────── */}
         <motion.div {...fadeUp(0)} className="flex flex-col gap-6">
-          <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>
+          <h2 style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#A6AFCE", fontFamily: "monospace", fontWeight: 400 }}>
             Latest issues
-          </p>
+          </h2>
+          {offline && (
+            <p className="text-sm" style={{ color: "#A6AFCE" }}>
+              The live archive isn’t loading right now, so here are recent issues.{" "}
+              <a href={SITE.newsletter.home} target="_blank" rel="noopener noreferrer" style={{ color: "#F2B85C" }}>
+                See every issue on Beehiiv ↗
+              </a>
+            </p>
+          )}
 
           {loading && (
             <div className="flex items-center gap-3 py-8">
@@ -158,7 +186,7 @@ const Newsletter = () => {
                 className="w-6 h-6 rounded-full border-2 border-transparent animate-spin shrink-0"
                 style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
               />
-              <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
+              <p style={{ color: "#A6AFCE", fontFamily: "monospace", fontSize: 12 }}>
                 Loading issues...
               </p>
             </div>
@@ -176,7 +204,7 @@ const Newsletter = () => {
                 Coming Soon
               </span>
               <p className="text-white font-semibold">Issue #01 drops soon</p>
-              <p className="text-gray-500 text-sm max-w-sm">
+              <p className="text-sm max-w-sm" style={{ color: "#A6AFCE" }}>
                 Subscribe above to be the first to read it.
               </p>
             </div>
@@ -190,6 +218,7 @@ const Newsletter = () => {
                   href={post.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={trackClick("newsletter_issue_opened", { issue: post.title, issueNumber: post.issueNumber, location: "newsletter_page" })}
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -202,20 +231,25 @@ const Newsletter = () => {
                   {post.thumbnail && (
                     <img
                       src={post.thumbnail}
-                      alt={post.title}
+                      alt=""
+                      width={80}
+                      height={80}
+                      loading="lazy"
+                      decoding="async"
                       className="w-20 h-20 rounded-lg object-cover shrink-0"
                     />
                   )}
 
                   <div className="flex flex-col gap-1 min-w-0">
-                    <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 10, letterSpacing: "0.1em" }}>
-                      {post.date}
+                    <p style={{ color: "#A6AFCE", fontFamily: "monospace", fontSize: 10, letterSpacing: "0.1em" }}>
+                      {post.issueNumber ? `ISSUE ${String(post.issueNumber).padStart(2, "0")} · ` : ""}{post.date}
+                      {i === 0 && <span style={{ marginLeft: 8, color: "#070A18", background: "#F2B85C", padding: "2px 6px", borderRadius: 4, fontSize: 9 }}>LATEST</span>}
                     </p>
                     <p className="text-white font-semibold text-sm group-hover:text-[#F2B85C] transition-colors truncate">
                       {post.title}
                     </p>
                     {post.previewText && (
-                      <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">
+                      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "#A6AFCE" }}>
                         {post.previewText}
                       </p>
                     )}

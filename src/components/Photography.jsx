@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import BlobImage from "../lib/BlobImage";
+import { fetchJson } from "../lib/fetchJson";
+import { track } from "../lib/analytics";
+import { useDialog } from "../lib/useDialog";
 
 // "" = same-origin (this deployment's own /api). Override with VITE_API_URL for local dev.
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const BATCH_SIZE = 9;
+const FALLBACK_RATIO = "4 / 3"; // until real dimensions arrive
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+// Filenames like "nature_ - 12" leave titles that are just numbers; don't show those.
+const titleOf = (p) => (p.title && /[A-Za-z]/.test(p.title) ? p.title : "");
+const ratioOf = (p) => (p.width && p.height ? `${p.width} / ${p.height}` : FALLBACK_RATIO);
+const altOf = (p) => (p.category && p.category !== "misc" ? `${cap(p.category)} photograph by Ra’Mar Wilson` : "Photograph by Ra’Mar Wilson");
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -14,25 +23,103 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
 });
 
+function Lightbox({ photo, index, total, onClose, onPrev, onNext }) {
+  const ref = useRef(null);
+  const onKey = useCallback(
+    (e) => {
+      if (e.key === "ArrowLeft" && onPrev) onPrev();
+      if (e.key === "ArrowRight" && onNext) onNext();
+    },
+    [onPrev, onNext]
+  );
+  useDialog(!!photo, ref, onClose, onKey);
+
+  return (
+    <AnimatePresence>
+      {photo && (
+        <motion.div
+          key="lightbox"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="lb-overlay"
+        >
+          <motion.div
+            ref={ref}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Photo ${index + 1} of ${total}`}
+            tabIndex={-1}
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={(e) => e.stopPropagation()}
+            className="lb-dialog"
+          >
+            <div className="lb-frame" style={{ aspectRatio: ratioOf(photo) }}>
+              <BlobImage
+                key={photo.id}
+                src={photo.src}
+                alt={altOf(photo)}
+                widths={[960, 1600, 2400]}
+                sizes="(min-width: 960px) 896px, 100vw"
+                quality={80}
+                decoding="async"
+                className="lb-img"
+              />
+            </div>
+
+            <div className="lb-meta">
+              <p className="lb-title">{titleOf(photo)}</p>
+              <div className="lb-right">
+                <a className="lb-orig" href={photo.src} target="_blank" rel="noopener noreferrer">View original ↗</a>
+                <span className="lb-count" aria-hidden="true">{index + 1} / {total}</span>
+              </div>
+            </div>
+
+            {onPrev && <button className="lb-nav lb-prev" onClick={onPrev} aria-label="Previous photo">‹</button>}
+            {onNext && <button className="lb-nav lb-next" onClick={onNext} aria-label="Next photo">›</button>}
+            <button className="lb-close" onClick={onClose} aria-label="Close photo" data-autofocus>✕</button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 const Photography = () => {
-  const [photos, setPhotos]       = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState(null);
-  const [active, setActive]       = useState("all");
-  const [selected, setSelected]   = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [status, setStatus] = useState("loading"); // loading | ready | error
+  const [active, setActive] = useState("all");
+  const [selectedId, setSelectedId] = useState(null);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const loaderRef = useRef(null);
 
-  useEffect(() => {
-    fetch(`${API_BASE}/api/photos`)
-      .then((r) => {
-        if (!r.ok) throw new Error("Failed to fetch");
-        return r.json();
+  const load = useCallback(() => {
+    setStatus("loading");
+    fetchJson(`${API_BASE}/api/photos`)
+      .then((data) => {
+        const list = Array.isArray(data.photos) ? data.photos : [];
+        setPhotos(list);
+        setStatus("ready");
+        // Dimensions come from a separate, long-cached response when not inline.
+        if (data.dimsVersion && list.some((p) => !p.width)) {
+          fetchJson(`${API_BASE}/api/photos?dims=${encodeURIComponent(data.dimsVersion)}`, { timeout: 12000 })
+            .then((d) => {
+              if (!d.dims) return;
+              setPhotos((cur) => cur.map((p) => (d.dims[p.id] ? { ...p, width: d.dims[p.id][0], height: d.dims[p.id][1] } : p)));
+            })
+            .catch(() => {});
+        }
       })
-      .then((data) => setPhotos(data.photos))
-      .catch(() => setError("Couldn't load photos."))
-      .finally(() => setLoading(false));
+      .catch(() => setStatus("error"));
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   // Reset visible count when filter changes
   useEffect(() => {
@@ -40,36 +127,33 @@ const Photography = () => {
   }, [active]);
 
   const filters = ["all", ...Array.from(new Set(photos.map((p) => p.category).filter(Boolean)))];
-
-  const filtered = active === "all"
-    ? photos
-    : photos.filter((p) => p.category === active);
-
+  const filtered = active === "all" ? photos : photos.filter((p) => p.category === active);
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
-  // Infinite scroll via IntersectionObserver
-  const handleObserver = useCallback(
-    (entries) => {
-      const [entry] = entries;
-      if (entry.isIntersecting && hasMore) {
-        setVisibleCount((c) => c + BATCH_SIZE);
-      }
-    },
-    [hasMore]
-  );
-
+  // Infinite scroll. Re-observing after each batch means a loader that's still on
+  // screen (short batch) triggers again instead of stalling.
   useEffect(() => {
     const el = loaderRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && setVisibleCount((c) => c + BATCH_SIZE),
+      { rootMargin: "600px 0px" }
+    );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [handleObserver]);
+  }, [hasMore, visibleCount]);
 
-  const currentIndex = selected
-    ? filtered.findIndex((p) => p.id === selected.id)
-    : -1;
+  const currentIndex = selectedId ? filtered.findIndex((p) => p.id === selectedId) : -1;
+  const selected = currentIndex >= 0 ? filtered[currentIndex] : null;
+
+  const openPhoto = (photo) => {
+    setSelectedId(photo.id);
+    track("photo_opened", { photo: photo.id.split("/").pop(), category: photo.category });
+  };
+  const close = useCallback(() => setSelectedId(null), []);
+  const prev = currentIndex > 0 ? () => setSelectedId(filtered[currentIndex - 1].id) : null;
+  const next = currentIndex >= 0 && currentIndex < filtered.length - 1 ? () => setSelectedId(filtered[currentIndex + 1].id) : null;
 
   return (
     <div className="min-h-screen w-full pt-28 pb-24 px-6">
@@ -77,18 +161,7 @@ const Photography = () => {
 
         {/* ── Header ──────────────────────────────────── */}
         <div className="flex flex-col gap-4">
-          <motion.p
-            {...fadeUp(0)}
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.3)",
-              fontFamily: "monospace",
-            }}
-          >
-            Visual Archive
-          </motion.p>
+          <motion.p {...fadeUp(0)} className="ph-eyebrow">Visual Archive</motion.p>
 
           <motion.h1
             {...fadeUp(0.1)}
@@ -104,7 +177,7 @@ const Photography = () => {
             </span>
           </motion.h1>
 
-          <motion.p {...fadeUp(0.2)} className="text-gray-400 text-base max-w-lg">
+          <motion.p {...fadeUp(0.2)} className="text-base max-w-lg" style={{ color: "#A6AFCE" }}>
             Cars, courts, streets, and everything in between.
             Captured whenever life looks worth saving.
           </motion.p>
@@ -112,122 +185,84 @@ const Photography = () => {
 
         {/* ── Filters ─────────────────────────────────── */}
         {filters.length > 2 && (
-        <motion.div {...fadeUp(0.2)} className="flex flex-wrap gap-2">
-          {filters.map((key) => (
-            <button
-              key={key}
-              onClick={() => setActive(key)}
-              className="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all duration-200"
-              style={{
-                background: active === key
-                  ? "linear-gradient(120deg, #F2B85C, #F2765C)"
-                  : "rgba(255,255,255,0.05)",
-                color: active === key ? "#0b0b0b" : "rgba(255,255,255,0.5)",
-                border: active === key
-                  ? "1px solid transparent"
-                  : "1px solid rgba(255,255,255,0.1)",
-              }}
-            >
-              {key === "all" ? "All" : cap(key)}
-            </button>
-          ))}
-        </motion.div>
+          <motion.div {...fadeUp(0.2)} className="flex flex-wrap gap-2" role="group" aria-label="Filter photos by category">
+            {filters.map((key) => (
+              <button
+                key={key}
+                onClick={() => setActive(key)}
+                aria-pressed={active === key}
+                className="ph-filter px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all duration-200"
+                style={{
+                  background: active === key ? "linear-gradient(120deg, #F2B85C, #F2765C)" : "rgba(255,255,255,0.05)",
+                  color: active === key ? "#0b0b0b" : "#C9D0E6",
+                  border: active === key ? "1px solid transparent" : "1px solid rgba(255,255,255,0.14)",
+                }}
+              >
+                {key === "all" ? "All" : cap(key)}
+              </button>
+            ))}
+          </motion.div>
         )}
 
         {/* ── Loading ─────────────────────────────────── */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
+        {status === "loading" && (
+          <div className="flex flex-col items-center justify-center py-32 gap-4" role="status">
             <div
               className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
               style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
+              aria-hidden="true"
             />
-            <p style={{ color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontSize: 12 }}>
-              Loading photos...
-            </p>
+            <p style={{ color: "#A6AFCE", fontFamily: "monospace", fontSize: 12 }}>Loading photos…</p>
           </div>
         )}
 
         {/* ── Error ───────────────────────────────────── */}
-        {error && (
-          <div
-            className="p-6 rounded-xl text-center"
-            style={{
-              border: "1px solid rgba(239,68,68,0.3)",
-              background: "rgba(242,184,92,0.08)",
-            }}
-          >
-            <p className="text-red-400 text-sm">{error}</p>
+        {status === "error" && (
+          <div className="ncv-state" role="alert">
+            <p>The gallery isn’t loading right now. Give it a moment and try again.</p>
+            <button className="ncv-btn" onClick={load}>Try again</button>
           </div>
         )}
 
         {/* ── Masonry grid ────────────────────────────── */}
-        {!loading && !error && (
+        {status === "ready" && (
           <>
-            <motion.div
-              layout
-              style={{ columns: 3, columnGap: 12 }}
-              className="photography-grid"
-            >
+            <ul className="photography-grid" style={{ columns: 3, columnGap: 12, listStyle: "none", margin: 0, padding: 0 }}>
               <AnimatePresence>
                 {visible.map((photo, i) => (
-                  <motion.div
+                  <motion.li
                     key={photo.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.35, delay: i * 0.03 }}
-                    onClick={() => setSelected(photo)}
-                    className="relative overflow-hidden rounded-xl cursor-pointer"
-                    style={{
-                      breakInside: "avoid",
-                      marginBottom: 12,
-                      border: "1px solid rgba(255,255,255,0.06)",
-                    }}
-                    whileHover="hover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.35, delay: (i % BATCH_SIZE) * 0.03 }}
+                    style={{ breakInside: "avoid", marginBottom: 12 }}
                   >
-                    <motion.img
-                      src={photo.thumb}
-                      alt={photo.title}
-                      loading="lazy"
-                      decoding="async"
-                      variants={{ hover: { scale: 1.05 } }}
-                      transition={{ duration: 0.4 }}
-                      className="w-full block"
-                      style={{ minHeight: 120, background: "rgba(255,255,255,0.04)" }}
-                    />
-
-                    {/* Hover overlay */}
-                    <motion.div
-                      variants={{ hover: { opacity: 1 } }}
-                      initial={{ opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="absolute inset-0 flex flex-col justify-end p-4"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%)",
-                      }}
+                    <button
+                      className="ph-tile"
+                      onClick={() => openPhoto(photo)}
+                      style={{ aspectRatio: ratioOf(photo) }}
+                      aria-label={`Open ${altOf(photo).toLowerCase()}${titleOf(photo) ? ` — ${titleOf(photo)}` : ""}`}
                     >
-                      <p className="text-white text-sm font-semibold capitalize">
-                        {photo.title}
-                      </p>
-                      {photo.location && (
-                        <p
-                          className="text-xs"
-                          style={{ color: "rgba(255,255,255,0.45)", fontFamily: "monospace" }}
-                        >
-                          {photo.location}
-                        </p>
-                      )}
-                    </motion.div>
-                  </motion.div>
+                      <BlobImage
+                        src={photo.thumb}
+                        alt=""
+                        widths={[384, 640, 960]}
+                        sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 380px"
+                        loading="lazy"
+                        decoding="async"
+                        className="ph-img"
+                      />
+                      {titleOf(photo) && <span className="ph-over" aria-hidden="true"><span>{titleOf(photo)}</span></span>}
+                    </button>
+                  </motion.li>
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </ul>
 
             {/* Infinite scroll trigger */}
             {hasMore && (
-              <div ref={loaderRef} className="flex justify-center py-8">
+              <div ref={loaderRef} className="flex justify-center py-8" aria-hidden="true">
                 <div
                   className="w-8 h-8 rounded-full border-2 border-transparent animate-spin"
                   style={{ borderTopColor: "#F2B85C", borderRightColor: "#F2765C" }}
@@ -236,108 +271,14 @@ const Photography = () => {
             )}
 
             {filtered.length === 0 && (
-              <p className="text-center text-gray-600 py-20">Nothing here yet.</p>
+              <p className="text-center py-20" style={{ color: "#A6AFCE" }}>Nothing here yet.</p>
             )}
           </>
         )}
       </div>
 
-      {/* ── Lightbox ──────────────────────────────────── */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            key="lightbox"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-6"
-            style={{ background: "rgba(0,0,0,0.92)" }}
-          >
-            <motion.div
-              initial={{ scale: 0.93, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.93, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl"
-            >
-              <img
-                src={selected.src}
-                alt={selected.title}
-                className="w-full rounded-xl object-contain"
-                style={{ maxHeight: "80vh" }}
-              />
+      <Lightbox photo={selected} index={currentIndex} total={filtered.length} onClose={close} onPrev={prev} onNext={next} />
 
-              {/* Meta */}
-              <div className="flex justify-between items-center mt-4 px-1">
-                <div>
-                  <p className="text-white font-semibold text-sm capitalize">
-                    {selected.title}
-                  </p>
-                  {selected.location && (
-                    <p
-                      className="text-xs"
-                      style={{ color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}
-                    >
-                      {selected.location}
-                    </p>
-                  )}
-                </div>
-                <p style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace", fontSize: 11 }}>
-                  {currentIndex + 1} / {filtered.length}
-                </p>
-              </div>
-
-              {/* Prev */}
-              {currentIndex > 0 && (
-                <button
-                  onClick={() => setSelected(filtered[currentIndex - 1])}
-                  className="absolute left-[-52px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-white text-xl"
-                  style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  ‹
-                </button>
-              )}
-
-              {/* Next */}
-              {currentIndex < filtered.length - 1 && (
-                <button
-                  onClick={() => setSelected(filtered[currentIndex + 1])}
-                  className="absolute right-[-52px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-white text-xl"
-                  style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  ›
-                </button>
-              )}
-
-              {/* Close */}
-              <button
-                onClick={() => setSelected(null)}
-                className="absolute -top-4 -right-4 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm"
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                }}
-              >
-                ✕
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Responsive columns */}
-      <style>{`
-        @media (max-width: 768px) { .photography-grid { columns: 2 !important; } }
-        @media (max-width: 480px) { .photography-grid { columns: 1 !important; } }
-      `}</style>
     </div>
   );
 };

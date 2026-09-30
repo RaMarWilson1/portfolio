@@ -1,12 +1,46 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "images": {
+    "sizes": [384, 640, 960, 1600, 2400],
+    "qualities": [70, 80],
+    "formats": ["image/avif", "image/webp"],
+    "minimumCacheTTL": 2678400,
+    "remotePatterns": [
+      { "protocol": "https", "hostname": "fbmdkppzlt8wjpjn.public.blob.vercel-storage.com", "pathname": "^/photography/.*$" }
+    ]
+  },
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/newsletter", "destination": "/newsletter.html" },
+    { "source": "/photography", "destination": "/photography.html" },
+    { "source": "/poetry", "destination": "/poetry.html" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ],
+  "headers": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' https://subscribe-forms.beehiiv.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://beehiiv-images-production.s3.amazonaws.com https://media.beehiiv.com; font-src 'self' data:; connect-src 'self' https://vercel.com https://*.public.blob.vercel-storage.com https://blob.vercel-storage.com https://us.i.posthog.com https://eu.i.posthog.com; frame-src https://subscribe-forms.beehiiv.com https://embeds.beehiiv.com https://challenges.cloudflare.com; media-src 'self' https://*.public.blob.vercel-storage.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
     },
     {
-      "source": "/:path*",
-      "destination": "/index.html"
+      "source": "/studio",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
     }
   ]
 }

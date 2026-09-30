@@ -31,4 +31,9 @@ export default [
       ],
     },
   },
+  {
+    // Vercel serverless functions + local scripts run on Node.
+    files: ['api/**/*.js', 'scripts/**/*.js'],
+    languageOptions: { globals: globals.node },
+  },
 ]

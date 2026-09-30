@@ -13,11 +13,11 @@ import { config } from "dotenv";
 
 config({ path: ".env.local" });
 
-const TOKEN = process.env.BLOB_READ_WRITE_TOKEN; // eslint-disable-line no-undef
+const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 
 if (!TOKEN) {
   console.error("❌ BLOB_READ_WRITE_TOKEN not found in .env.local");
-  process.exit(1); // eslint-disable-line no-undef
+  process.exit(1);
 }
 
 const UPLOAD_DIRS = {
@@ -109,7 +109,7 @@ async function uploadDir({ localDir, blobPrefix, extensions, contentType }) {
 }
 
 async function main() {
-  const arg = process.argv[2]; // eslint-disable-line no-undef
+  const arg = process.argv[2];
 
   console.log("🚀 Vercel Blob Upload Script");
   console.log("================================");
@@ -129,5 +129,5 @@ async function main() {
 
 main().catch((err) => {
   console.error("Unexpected error:", err);
-  process.exit(1); // eslint-disable-line no-undef
+  process.exit(1);
 });
